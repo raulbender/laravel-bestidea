@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
-class Rooms extends Model
+class Room extends Model
 {
     use HasFactory;
 
@@ -46,7 +46,7 @@ class Rooms extends Model
     /**
      * Get all ideas created inside this room.
      */
-    public function ideas(): HasMany
+    public function idea(): HasMany
     {
         return $this->hasMany(Idea::class);
     }

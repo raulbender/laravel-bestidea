@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name',100);
             $table->text('avatar')->nullable();
-            $table->tinyInteger('type')->default(0);
+            $table->unsignedSmallInteger('type')->default(0); // 0 = Human, 1 = AI
             $table->timestamps();
         });
     }

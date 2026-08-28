@@ -10,7 +10,7 @@ class Author extends Model {
     //
 
 
-    public function ideas(): HasMany {
-        return $this->hasMany(Ideas::class);
+    public function idea(): HasMany {
+        return $this->hasMany(Idea::class);
     }
 }

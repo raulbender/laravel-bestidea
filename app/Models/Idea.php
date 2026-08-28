@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Ideas extends Model {
+class Idea extends Model {
     protected $guarded = [];
     //
 
@@ -15,6 +15,6 @@ class Ideas extends Model {
 
     public function room(): BelongsTo
     {
-        return $this->belongsTo(Rooms::class);
+        return $this->belongsTo(Room::class);
     }
 }
