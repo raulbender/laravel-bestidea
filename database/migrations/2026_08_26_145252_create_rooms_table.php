@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->uuid('uuid')->unique();
             $table->text('description');
+            $table->boolean('is_public')->default(false);
             $table->dateTime('expires_at')->nullable();            
             $table->timestamps();
         });
