@@ -79,5 +79,38 @@ class RoomCreationTest extends TestCase {
         $this->assertIsString($room->uuid);
     }
 
+    /**
+     * Test fetching a room by its UUID.
+     */
+    public function test_can_fetch_a_room_by_uuid(): void
+    {
+        // 1. Arrange: Create a room using the model
+        $room = \App\Models\Room::create([
+            'description' => 'Brainstorming Session',
+            'expires_at'  => now()->addHours(2)->toDateTimeString(),
+        ]);
+
+        // 2. Act: Request the room by its auto-generated UUID
+        $response = $this->getJson("/api/rooms/{$room->uuid}");
+
+        // 3. Assert: Verify status code and payload structure
+        $response->assertStatus(200)
+            ->assertJson([
+                'data' => [
+                    'uuid'        => $room->uuid,
+                    'description' => 'Brainstorming Session',
+                ],
+            ]);
+    }
+
+    /**
+     * Test requesting a non-existent room UUID returns 404.
+     */
+    public function test_returns_404_when_room_uuid_not_found(): void
+    {
+        $response = $this->getJson('/api/rooms/non-existent-uuid-1234');
+
+        $response->assertStatus(404);
+    }
 
 }

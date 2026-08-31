@@ -25,4 +25,16 @@ class RoomController extends Controller
             'data' => $room,
         ], 201);
     }
+
+    /**
+     * Fetch a single room by its UUID.
+     */
+    public function show(string $uuid): JsonResponse
+    {
+        $room = Room::where('uuid', $uuid)->firstOrFail();
+
+        return response()->json([
+            'data' => $room,
+        ], 200);
+    }
 }
