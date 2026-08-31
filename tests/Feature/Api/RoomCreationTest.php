@@ -57,7 +57,7 @@ class RoomCreationTest extends TestCase {
         $response = $this->postJson('/api/rooms', []);
 
         $response->assertStatus(422)
-            ->assertJsonValidationErrors(['description', 'expires_at']);
+            ->assertJsonValidationErrors(['description']);
     }
 
 
@@ -82,8 +82,7 @@ class RoomCreationTest extends TestCase {
     /**
      * Test fetching a room by its UUID.
      */
-    public function test_can_fetch_a_room_by_uuid(): void
-    {
+    public function test_can_fetch_a_room_by_uuid(): void {
         // 1. Arrange: Create a room using the model
         $room = \App\Models\Room::create([
             'description' => 'Brainstorming Session',
@@ -106,11 +105,48 @@ class RoomCreationTest extends TestCase {
     /**
      * Test requesting a non-existent room UUID returns 404.
      */
-    public function test_returns_404_when_room_uuid_not_found(): void
-    {
+    public function test_returns_404_when_room_uuid_not_found(): void {
         $response = $this->getJson('/api/rooms/non-existent-uuid-1234');
 
         $response->assertStatus(404);
     }
 
+
+
+    /**
+     * Test creating public rooms and verifying they appear on the homepage/public endpoint.
+     */
+    public function test_public_rooms_are_listed_on_the_homepage(): void {
+        // 1. Act: Create a public room via the API
+        $publicPayload = [
+            'description' => 'Open Innovation Session',
+            'is_public'   => true,
+        ];
+
+        $this->postJson('/api/rooms', $publicPayload)
+            ->assertStatus(201);
+
+        // 2. Act: Create a private room via the API
+        $privatePayload = [
+            'description' => 'Secret Internal Roadmap',
+            'is_public'   => false,
+        ];
+
+        $this->postJson('/api/rooms', $privatePayload)
+            ->assertStatus(201);
+
+        // 3. Act: Fetch the homepage/public listing
+        $response = $this->getJson('/api/rooms/public');
+
+        // 4. Assert: Only the public room should appear in the results
+        $response->assertStatus(200)
+            ->assertJsonCount(1, 'data')
+            ->assertJsonFragment([
+                'description' => 'Open Innovation Session',
+                'is_public'   => true,
+            ])
+            ->assertJsonMissing([
+                'description' => 'Secret Internal Roadmap',
+            ]);
+    }
 }

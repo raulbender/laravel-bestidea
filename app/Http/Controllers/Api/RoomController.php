@@ -16,7 +16,8 @@ class RoomController extends Controller
     {
         $validated = $request->validate([
             'description' => 'required|string|max:255',
-            'expires_at'  => 'required|date',
+            'is_public'   => 'nullable|boolean',
+            'expires_at'  => 'nullable|date|after:now',
         ]);
 
         $room = Room::create($validated);
@@ -37,4 +38,17 @@ class RoomController extends Controller
             'data' => $room,
         ], 200);
     }
+
+    /**
+     * Fetch all public rooms.
+     */
+    public function publicRooms(): JsonResponse
+    {
+        $publicRooms = Room::where('is_public', true)
+        ->latest()
+        ->paginate(10);
+
+        return response()->json($publicRooms, 200);
+    }
+
 }

@@ -16,11 +16,9 @@ class Room extends Model
      *
      * @var array<int, string>
      */
-    protected $fillable = [
-        'uuid',
-        'description',
-        'expires_at',
-    ];
+
+    protected $guarded = [];
+    
 
     /**
      * The attributes that should be cast.
@@ -29,6 +27,7 @@ class Room extends Model
      */
     protected $casts = [
         'expires_at' => 'datetime',
+        'is_public' => 'boolean',
     ];
 
     /**
