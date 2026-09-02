@@ -5,6 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use App\Models\Author;
 use App\Models\Room;
+use App\Models\User;
 
 return new class extends Migration
 {
@@ -15,6 +16,7 @@ return new class extends Migration
     {
         Schema::create('ideas', function (Blueprint $table) {
             $table->id();
+            $table->foreignUuidFor(User::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(Author::class)->constrained()->cascadeOnDelete();            
             $table->foreignIdFor(Room::class)->constrained()->cascadeOnDelete();
             $table->text('content');

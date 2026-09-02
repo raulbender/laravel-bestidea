@@ -7,8 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
-class Room extends Model
-{
+class Room extends Model {
     use HasFactory;
 
     /**
@@ -18,7 +17,11 @@ class Room extends Model
      */
 
     protected $guarded = [];
-    
+
+
+    public function ideas(): HasMany {
+        return $this->hasMany(Idea::class);
+    }
 
     /**
      * The attributes that should be cast.
@@ -33,8 +36,7 @@ class Room extends Model
     /**
      * Bootstrap the model and its events.
      */
-    protected static function booted(): void
-    {
+    protected static function booted(): void {
         static::creating(function (Room $room) {
             if (empty($room->uuid)) {
                 $room->uuid = (string) Str::uuid();
@@ -45,8 +47,7 @@ class Room extends Model
     /**
      * Get all ideas created inside this room.
      */
-    public function idea(): HasMany
-    {
+    public function idea(): HasMany {
         return $this->hasMany(Idea::class);
     }
 }
