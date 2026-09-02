@@ -83,11 +83,12 @@ class RoomCreationTest extends TestCase {
      * Test fetching a room by its UUID.
      */
     public function test_can_fetch_a_room_by_uuid(): void {
+        $this->seed(\Database\Seeders\AuthorSeeder::class);
         // 1. Arrange: Create a room using the model
         $user = \App\Models\User::factory()->create();
-        
+
         $room = Room::create([
-            'description' => 'Brainstorming Session',            
+            'description' => 'Brainstorming Session',
             'expires_at'  => now()->addHours(2)->toDateTimeString(),
             'user_id'     => $user->id,
         ]);
@@ -99,8 +100,10 @@ class RoomCreationTest extends TestCase {
         $response->assertStatus(200)
             ->assertJson([
                 'data' => [
-                    'uuid'        => $room->uuid,
-                    'description' => 'Brainstorming Session',
+                    'room' => [
+                        'uuid'        => $room->uuid,
+                        'description' => 'Brainstorming Session',
+                    ],
                 ],
             ]);
     }
