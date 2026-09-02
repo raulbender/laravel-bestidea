@@ -152,4 +152,69 @@ class RoomCreationTest extends TestCase {
                 'description' => 'Secret Internal Roadmap',
             ]);
     }
+
+
+    /**
+     * Test that fetching a room assigns a random animal author persona to the visitor.
+     */
+    public function test_fetching_a_room_assigns_an_animal_author_persona_to_the_user(): void {
+        // 1. Arrange: Executa a Seeder de autores (animais/frutas)
+        $this->seed(\Database\Seeders\AuthorSeeder::class);
+
+        $owner = \App\Models\User::factory()->create();
+        $room = Room::create([
+            'description' => 'TDD Brainstorming Room',
+            'expires_at'  => now()->addHours(5),
+            'user_id'     => $owner->id,
+        ]);
+
+        // 2. Act: Faz a requisição para obter a sala sem estar logado (Guest criado pelo middleware)
+        $response = $this->getJson("/api/rooms/{$room->uuid}");
+
+        // 3. Assert: Verifica se a persona foi sorteada e anexada ao contrato JSON
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                'data' => [
+                    'room',
+                    'my_persona' => [
+                        'name',
+                        'avatar',
+                        'type',
+                    ],
+                    'is_owner',
+                ],
+            ])
+            ->assertJsonPath('data.my_persona.type', 0) // Deve ser Humano (Animal)
+            ->assertJsonPath('data.is_owner', false);
+
+        // Verifica se o registro foi salvo na tabela room_users
+        $this->assertDatabaseHas('room_users', [
+            'room_id' => $room->id,
+        ]);
+    }
+
+    /**
+     * Test that accessing the room again reuses the previously assigned persona.
+     */
+    public function test_user_retains_same_assigned_author_persona_on_subsequent_views(): void {
+        $this->seed(\Database\Seeders\AuthorSeeder::class);
+
+        $owner = \App\Models\User::factory()->create();
+        $room = Room::create([
+            'description' => 'Persistent Persona Room',
+            'expires_at'  => now()->addHours(5),
+            'user_id'     => $owner->id,
+        ]);
+
+        // Primeira visita
+        $firstResponse = $this->getJson("/api/rooms/{$room->uuid}");
+        $assignedPersona = $firstResponse->json('data.my_persona');
+
+        // Segunda visita (mesmo contexto/cookies de sessão no teste)
+        $secondResponse = $this->getJson("/api/rooms/{$room->uuid}");
+
+        // Deve manter o mesmo animal sorteado na primeira requisição
+        $secondResponse->assertStatus(200)
+            ->assertJsonPath('data.my_persona.name', $assignedPersona['name']);
+    }
 }
