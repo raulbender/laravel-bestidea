@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('rooms', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->unique();
+            $table->foreignUuid('user_id')->constrained('users')->onDelete('cascade');
             $table->text('description');
             $table->boolean('is_public')->default(false);
             $table->dateTime('expires_at')->nullable();            

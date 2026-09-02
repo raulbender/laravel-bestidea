@@ -84,9 +84,12 @@ class RoomCreationTest extends TestCase {
      */
     public function test_can_fetch_a_room_by_uuid(): void {
         // 1. Arrange: Create a room using the model
-        $room = \App\Models\Room::create([
-            'description' => 'Brainstorming Session',
+        $user = \App\Models\User::factory()->create();
+        
+        $room = Room::create([
+            'description' => 'Brainstorming Session',            
             'expires_at'  => now()->addHours(2)->toDateTimeString(),
+            'user_id'     => $user->id,
         ]);
 
         // 2. Act: Request the room by its auto-generated UUID

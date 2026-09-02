@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Room;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -20,7 +21,7 @@ class RoomController extends Controller
             'expires_at'  => 'nullable|date|after:now',
         ]);
 
-        $room = Room::create($validated);
+        $room = Room::create([...$validated,'user_id' => Auth::id()]);
 
         return response()->json([
             'data' => $room,
