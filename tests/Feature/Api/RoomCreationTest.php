@@ -35,11 +35,13 @@ class RoomCreationTest extends TestCase {
         $response->assertStatus(201)
             ->assertJsonStructure([
                 'data' => [
-                    'id',
-                    'uuid',
-                    'description',
-                    'expires_at',
-                    'created_at',
+                    'room' => [
+                        'id',
+                        'uuid',
+                        'description',
+                        'expires_at',
+                        'created_at',
+                    ],
                 ],
             ]);
 
@@ -47,7 +49,6 @@ class RoomCreationTest extends TestCase {
             'description' => 'Laravel Migration Room',
         ]);
     }
-
 
 
     /**
