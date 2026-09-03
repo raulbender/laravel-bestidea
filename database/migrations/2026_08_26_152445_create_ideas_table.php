@@ -23,6 +23,7 @@ return new class extends Migration
             $table->integer('total_score')->default(0);
             $table->unsignedInteger('ratings_count')->default(0);
             $table->decimal('avg_score', 3, 2)->default(0.00);
+            $table->unsignedInteger('comments_count')->default(0);
             $table->timestamps();
             $table->index(['room_id', 'avg_score']);
         });
