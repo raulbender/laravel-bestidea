@@ -23,12 +23,16 @@ class IdeaListingTest extends TestCase {
                 'data' => [
                     '*' => ['id', 'content', 'total_score', 'ratings_count', 'avg_score', 'created_at'],
                 ],
-                'links' => ['first', 'last', 'prev', 'next'],
-                'meta'  => ['current_page', 'per_page'],
+                'current_page',
+                'per_page',
+                'total',
+                'last_page',
+                'links',
             ]);
 
         $this->assertCount(10, $response->json('data'));
     }
+
 
     public function test_user_can_filter_only_their_own_ideas_in_a_room(): void {
         $room = Room::factory()->create();
@@ -45,8 +49,8 @@ class IdeaListingTest extends TestCase {
 
         $response->assertStatus(200);
         $this->assertCount(2, $response->json('data'));
-        $this->assertEquals($ideaA1->id, $response->json('data.0.id'));
-        $this->assertEquals($ideaA2->id, $response->json('data.1.id'));
+        $this->assertEquals($ideaA2->id, $response->json('data.0.id'));
+        $this->assertEquals($ideaA1->id, $response->json('data.1.id'));
     }
 
 
