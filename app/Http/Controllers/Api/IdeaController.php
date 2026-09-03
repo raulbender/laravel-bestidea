@@ -7,6 +7,7 @@ use App\Models\Author;
 use App\Models\Idea;
 use App\Models\Room;
 use App\Models\RoomUser;
+use App\Http\Resources\Api\IdeaResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -31,6 +32,13 @@ class IdeaController extends Controller {
             ]
         );
 
+        // Se o registro já existia mas estava sem author_id, atribui um autor disponível
+        if (!$roomUser->author_id) {
+            $roomUser->update([
+                'author_id' => $this->assignAvailableAuthor($room->id),
+            ]);
+        }
+
         // Cria a ideia registrando user_id (para banco) e author_id (para anonimato da API)
         $idea = Idea::create([
             'room_id'   => $room->id,
@@ -41,22 +49,17 @@ class IdeaController extends Controller {
 
         $idea->load('author');
 
-        return response()->json([
-            'data' => [
-                'id'         => $idea->id,
-                'content'    => $idea->content,
-                'author'     => [
-                    'name'   => $idea->author->name,
-                    'avatar' => $idea->author->avatar,
-                    'type'   => $idea->author->type,
-                ],
-                'created_at' => $idea->created_at,
-            ],
-        ], 201);
+        return (new IdeaResource($idea))
+            ->response()
+            ->setStatusCode(201);
     }
 
+
+
     private function assignAvailableAuthor(int $roomId): int {
-        $usedAuthorIds = RoomUser::where('room_id', $roomId)->pluck('author_id');
+        $usedAuthorIds = RoomUser::where('room_id', $roomId)
+            ->whereNotNull('author_id')
+            ->pluck('author_id');
 
         $availableAuthor = Author::where('type', 0)
             ->whereNotIn('id', $usedAuthorIds)
@@ -70,9 +73,10 @@ class IdeaController extends Controller {
         return $availableAuthor->id;
     }
 
-
     public function index(Request $request) {
-        $query = Idea::query();
+        //$query = Idea::query();
+        // Carrega o relacionamento author para satisfazer o Resource
+        $query = Idea::with('author');
 
         // Filtro por sala
         if ($request->filled('room_id')) {
@@ -94,6 +98,8 @@ class IdeaController extends Controller {
             default     => $query->orderBy('id', 'desc'),
         };
 
-        return response()->json($query->paginate(10));
+        $ideas = $query->paginate(10);
+
+        return IdeaResource::collection($ideas);
     }
 }

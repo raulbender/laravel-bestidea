@@ -50,4 +50,12 @@ class Room extends Model {
     public function idea(): HasMany {
         return $this->hasMany(Idea::class);
     }
+
+    public function roomUsers() {
+        return $this->hasMany(RoomUser::class);
+    }
+
+    public function myRoomUser() {
+        return $this->hasOne(RoomUser::class)->where('user_id', auth()->id());
+    }
 }

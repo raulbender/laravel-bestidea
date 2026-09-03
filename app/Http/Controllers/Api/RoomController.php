@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Room;
 use App\Models\RoomUser;
 use App\Models\Author;
+use App\Http\Resources\Api\RoomResource;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -23,24 +24,13 @@ class RoomController extends Controller {
 
         $room = Room::create([...$validated, 'user_id' => Auth::id()]);
 
-        return response()->json([
-            'data' => $room,
-        ], 201);
+        return (new RoomResource($room))
+            ->response()
+            ->setStatusCode(201);
     }
 
-    // /**
-    //  * Fetch a single room by its UUID.
-    //  */
-    // public function show(string $uuid): JsonResponse
-    // {
-    //     $room = Room::where('uuid', $uuid)->firstOrFail();
 
-    //     return response()->json([
-    //         'data' => $room,
-    //     ], 200);
-    // }
-
-    public function show(string $uuid): JsonResponse {
+    public function show(string $uuid) {
         $room = Room::where('uuid', $uuid)->firstOrFail();
         $user = Auth::user();
 
@@ -55,21 +45,12 @@ class RoomController extends Controller {
             ]
         );
 
-        // 2. Carrega os dados do autor sorteado
-        $roomUser->load('author');
+        $room->load(['roomUsers.author']);
 
-        return response()->json([
-            'data' => [
-                'room' => $room,
-                'my_persona' => [
-                    'name'   => $roomUser->author->name,
-                    'avatar' => $roomUser->author->avatar,
-                    'type'   => $roomUser->author->type,
-                ],
-                'is_owner' => $room->user_id === $user->id,
-            ],
-        ], 200);
+        return new RoomResource($room);
     }
+
+
 
     private function assignAvailableAuthor(int $roomId): int {
         // IDs de autores (animais) já em uso nesta sala
@@ -94,11 +75,11 @@ class RoomController extends Controller {
     /**
      * Fetch all public rooms.
      */
-    public function publicRooms(): JsonResponse {
-        $publicRooms = Room::where('is_public', true)
+    public function publicRooms() {
+        $rooms = Room::where('is_public', true)
             ->latest()
             ->paginate(10);
 
-        return response()->json($publicRooms, 200);
+        return RoomResource::collection($rooms);
     }
 }
