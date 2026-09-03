@@ -11,10 +11,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class CommentController extends Controller
-{
-    public function store(Request $request, int $id): JsonResponse
-    {
+class CommentController extends Controller {
+    public function store(Request $request, int $id): JsonResponse {
         $validated = $request->validate([
             'content' => 'required|string|max:1000',
         ]);
@@ -60,8 +58,7 @@ class CommentController extends Controller
         ], 201);
     }
 
-    private function assignAvailableAuthor(int $roomId): int
-    {
+    private function assignAvailableAuthor(int $roomId): int {
         $usedAuthorIds = RoomUser::where('room_id', $roomId)->pluck('author_id');
 
         $availableAuthor = Author::where('type', 0)
@@ -74,5 +71,16 @@ class CommentController extends Controller
         }
 
         return $availableAuthor->id;
+    }
+
+    public function index(int $id): JsonResponse {
+        $idea = Idea::findOrFail($id);
+
+        $comments = $idea->comments()
+            ->with('author')
+            ->orderBy('id', 'asc') // Leitura em ordem cronológica
+            ->paginate(10);
+
+        return response()->json($comments);
     }
 }

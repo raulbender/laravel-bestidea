@@ -16,5 +16,6 @@ Route::middleware(['ensure.guest'])->group(function () {
     Route::post('/ideas/{id}/ratings', [RatingController::class, 'store'])->whereNumber('id');
     Route::get('/ideas', [IdeaController::class, 'index']);
     Route::post('/ideas/{id}/comments', [CommentController::class, 'store'])->whereNumber('id');
+    Route::get('/ideas/{id}/comments', [CommentController::class, 'index'])->whereNumber('id');
 });
     
