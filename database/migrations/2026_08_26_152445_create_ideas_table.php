@@ -20,7 +20,10 @@ return new class extends Migration
             $table->foreignIdFor(Author::class)->constrained()->cascadeOnDelete();            
             $table->foreignIdFor(Room::class)->constrained()->cascadeOnDelete();
             $table->text('content');
+            $table->integer('total_score')->default(0)->after('content');
+            $table->unsignedInteger('ratings_count')->default(0)->after('total_score');
             $table->timestamps();
+            $table->index(['room_id', 'total_score']);
         });
     }
 
