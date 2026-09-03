@@ -13,5 +13,6 @@ Route::middleware(['ensure.guest'])->group(function () {
     Route::post('/guest/register', [GuestConversionController::class, 'convert']);
     Route::post('/rooms/{uuid}/ideas', [IdeaController::class, 'store'])->whereUuid('uuid');
     Route::post('/ideas/{id}/ratings', [RatingController::class, 'store'])->whereNumber('id');
+    Route::get('/ideas', [IdeaController::class, 'index']);
 
 });

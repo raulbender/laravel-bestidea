@@ -11,10 +11,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class IdeaController extends Controller
-{
-    public function store(Request $request, string $uuid): JsonResponse
-    {
+class IdeaController extends Controller {
+    public function store(Request $request, string $uuid): JsonResponse {
         $validated = $request->validate([
             'content' => 'required|string|max:1000',
         ]);
@@ -57,8 +55,7 @@ class IdeaController extends Controller
         ], 201);
     }
 
-    private function assignAvailableAuthor(int $roomId): int
-    {
+    private function assignAvailableAuthor(int $roomId): int {
         $usedAuthorIds = RoomUser::where('room_id', $roomId)->pluck('author_id');
 
         $availableAuthor = Author::where('type', 0)
@@ -71,5 +68,32 @@ class IdeaController extends Controller
         }
 
         return $availableAuthor->id;
+    }
+
+
+    public function index(Request $request) {
+        $query = Idea::query();
+
+        // Filtro por sala
+        if ($request->filled('room_id')) {
+            $query->where('room_id', $request->query('room_id'));
+        }
+
+        // Filtro de escopo (Minhas Ideias)
+        if ($request->query('filter') === 'mine') {
+            $query->where('user_id', $request->user()->id);
+        }
+
+        // Ordenações e Rankings
+        match ($request->query('sort')) {
+            'top_rated' => $query->orderBy('avg_score', 'desc')
+                ->orderBy('ratings_count', 'desc'),
+            'recent'    => $query->orderBy('id', 'desc'),
+            'hot'       => $query->orderByRaw('CASE WHEN created_at >= ? THEN 1 ELSE 0 END DESC', [now()->subDays(30)])
+                ->orderBy('total_score', 'desc'),
+            default     => $query->orderBy('id', 'desc'),
+        };
+
+        return response()->json($query->paginate(10));
     }
 }
