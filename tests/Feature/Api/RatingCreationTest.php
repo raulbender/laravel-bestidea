@@ -31,7 +31,7 @@ class RatingCreationTest extends TestCase {
         $response->assertStatus(201)
             ->assertJsonPath('data.total_score', 5)
             ->assertJsonPath('data.ratings_count', 1)
-            ->assertJsonPath('data.avg_score', 5.00);
+            ->assertJsonPath('data.avg_score', '5.00');
 
         // Garante a gravação na tabela ratings
         $this->assertDatabaseHas('ratings', [
@@ -122,15 +122,15 @@ class RatingCreationTest extends TestCase {
         ]);
 
         // Primeiro Usuário avalia com Nota 5
-        $this->postJson("/api/ideas/{$idea->id}/ratings", ['score' => 5])
+        $userA = \App\Models\User::factory()->create();
+        $this->actingAs($userA)
+            ->postJson("/api/ideas/{$idea->id}/ratings", ['score' => 5])
             ->assertStatus(201);
 
-        // Limpa a autenticação em memória para simular uma nova requisição de outro visitante anônimo
-        $this->flushHeaders();
-        \Illuminate\Support\Facades\Auth::forgetGuards();
-
         // Segundo Usuário avalia com Nota 3
-        $this->postJson("/api/ideas/{$idea->id}/ratings", ['score' => 2])
+        $userB = \App\Models\User::factory()->create();
+        $this->actingAs($userB)
+            ->postJson("/api/ideas/{$idea->id}/ratings", ['score' => 2])
             ->assertStatus(201);
 
         // Média esperada: (5 + 3) / 2 = 4.00
