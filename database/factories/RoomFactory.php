@@ -8,12 +8,14 @@ use App\Models\Idea;
 use App\Models\Comment;
 use App\Models\Rating;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 class RoomFactory extends Factory {
     protected $model = Room::class;
 
     public function definition(): array {
         return [
+            'uuid' => (string) Str::uuid(),
             'user_id'     => User::factory(),
             'description' => $this->faker->sentence(),
             'is_public'   => $this->faker->boolean(),
