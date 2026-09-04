@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Actions\Ratings\RateIdeaAction;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Api\RatingResource;
 use App\Models\Idea;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -27,15 +28,11 @@ class RatingController extends Controller
             $validated['feedback'] ?? null
         );
 
-        return response()->json([
-            'data' => [
-                'id'            => $rating->id,
-                'score'         => $rating->score,
-                'feedback'      => $rating->feedback,
-                'total_score'   => $idea->total_score,
-                'ratings_count' => $idea->ratings_count,
-                'avg_score'     => number_format($idea->avg_score, 2, '.', ''),
-            ],
-        ], 201);
+        // Recarrega a ideia atualizada para o Resource formatar
+        $rating->load('idea');
+
+        return (new RatingResource($rating))
+            ->response()
+            ->setStatusCode(201);
     }
 }
