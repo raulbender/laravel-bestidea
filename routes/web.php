@@ -25,5 +25,9 @@ Route::get('/rooms/create', function () {
     return view('rooms.create');
 })->name('rooms.create');
 
+Route::get('/rooms/{uuid}', function ($uuid) {
+    return view('rooms.show', ['uuid' => $uuid]);
+})->name('rooms.show');
+
 
 require __DIR__.'/auth.php';
