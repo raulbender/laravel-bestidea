@@ -4,6 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+use function PHPUnit\Framework\isFalse;
+
 return new class extends Migration
 {
     /**
@@ -17,8 +19,8 @@ return new class extends Migration
             $table->string('email')->nullable()->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password')->nullable();
-            $table->boolean('is_anonymous')->default(true);
-            $table->timestamp('anonymous_created_at')->nullable();
+            $table->boolean('is_guest')->default(false);
+            $table->timestamp('guest_created_at')->nullable();
             $table->timestamp('last_active_at')->nullable()->index();
             $table->rememberToken();
             $table->timestamps();

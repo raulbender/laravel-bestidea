@@ -15,7 +15,7 @@ class GuestConversionController extends Controller
         $user = $request->user();
 
         // Prevent registered users from invoking guest conversion
-        if (!$user || !$user->is_anonymous) {
+        if (!$user || !$user->is_guest) {
             return response()->json([
                 'message' => 'Only guest accounts can be converted.',
             ], 403);
@@ -31,7 +31,7 @@ class GuestConversionController extends Controller
             'name'         => $validated['name'],
             'email'        => $validated['email'],
             'password'     => Hash::make($validated['password']),
-            'is_anonymous' => false,
+            'is_guest' => false,
         ]);
 
         // Clear the guest cookie upon successful conversion

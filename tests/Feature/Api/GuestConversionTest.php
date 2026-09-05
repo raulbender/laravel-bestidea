@@ -17,7 +17,7 @@ class GuestConversionTest extends TestCase
         // 1. Create a guest user with an existing room
         $guestUser = User::factory()->create([
             'name'         => 'Guest #12345',
-            'is_anonymous' => true,
+            'is_guest' => true,
             'email'        => null,
             'password'     => null,
         ]);
@@ -46,7 +46,7 @@ class GuestConversionTest extends TestCase
                     'id'           => $guestUser->id,
                     'name'         => 'John Doe',
                     'email'        => 'john@example.com',
-                    'is_anonymous' => false,
+                    'is_guest' => false,
                 ],
             ]);
 
@@ -54,7 +54,7 @@ class GuestConversionTest extends TestCase
             'id'           => $guestUser->id,
             'name'         => 'John Doe',
             'email'        => 'john@example.com',
-            'is_anonymous' => false,
+            'is_guest' => false,
         ]);
 
         // Ensure room ownership was preserved
@@ -68,7 +68,7 @@ class GuestConversionTest extends TestCase
     {
         User::factory()->create(['email' => 'existing@example.com']);
 
-        $guestUser = User::factory()->create(['is_anonymous' => true]);
+        $guestUser = User::factory()->create(['is_guest' => true]);
 
         $payload = [
             'name'                  => 'Jane Doe',
@@ -87,7 +87,7 @@ class GuestConversionTest extends TestCase
     public function test_already_registered_user_cannot_convert_again(): void
     {
         $registeredUser = User::factory()->create([
-            'is_anonymous' => false,
+            'is_guest' => false,
             'email'        => 'permanent@example.com',
         ]);
 
