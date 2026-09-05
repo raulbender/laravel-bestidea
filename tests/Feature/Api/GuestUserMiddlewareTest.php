@@ -6,7 +6,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class AnonymousUserMiddlewareTest extends TestCase {
+class GuestUserMiddlewareTest extends TestCase {
     use RefreshDatabase;
 
     public function test_unauthenticated_request_creates_and_authenticates_an_anonymous_user(): void {
@@ -22,7 +22,7 @@ class AnonymousUserMiddlewareTest extends TestCase {
         $this->assertDatabaseCount('users', 1);
 
         $guest = User::first();
-        $this->assertTrue($guest->is_anonymous);
+        $this->assertTrue($guest->is_guest);
         $this->assertStringStartsWith('Guest', $guest->name);
         $this->assertMatchesRegularExpression('/^Guest #[a-zA-Z0-9]+$/', $guest->name);
         $this->assertNull($guest->email);
