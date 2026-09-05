@@ -2,20 +2,24 @@
 
 namespace Database\Factories;
 
-use App\Models\Room;
-use App\Models\User;
-use App\Models\Idea;
+use App\Models\Author;
 use App\Models\Comment;
+use App\Models\Idea;
 use App\Models\Rating;
+use App\Models\Room;
+use App\Models\RoomUser;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
-class RoomFactory extends Factory {
+class RoomFactory extends Factory 
+{
     protected $model = Room::class;
 
-    public function definition(): array {
+    public function definition(): array 
+    {
         return [
-            'uuid' => (string) Str::uuid(),
+            'uuid'        => (string) Str::uuid(),
             'user_id'     => User::factory(),
             'description' => $this->faker->sentence(),
             'is_public'   => $this->faker->boolean(),
@@ -23,31 +27,54 @@ class RoomFactory extends Factory {
         ];
     }
 
-    /**
-     * Estado para gerar uma sala completa com ideias, comentários e ratings de uma só vez.
-     */
-    public function withFullContent(int $ideasCount = 5): static {
+    public function withFullContent(int $ideasCount = 5): static 
+    {
         return $this->afterCreating(function (Room $room) use ($ideasCount) {
-            // Criamos uma quantidade de usuários suficiente para os testes
             $users = User::factory(10)->create();
+
+            $authors = Author::all();
             
+            // Função helper para vincular o usuário à sala garantindo um author_id
+            $ensureRoomUser = function (int $roomId, string $userId) use ($authors) {
+                return RoomUser::firstOrCreate(
+                    [
+                        'room_id' => $roomId,
+                        'user_id' => $userId,
+                    ],
+                    [
+                        'author_id' => $authors->random()->id,
+                    ]
+                );
+            };
+
+            // 1. Vincula o criador da sala
+            $ensureRoomUser($room->id, $room->user_id);
 
             Idea::factory($ideasCount)
                 ->for($room)
                 ->recycle($users)
-                ->create(['avg_score' => round(random_int(0, 500) / 100, 2), // Inicializamos avg_score como um valor aleatório entre 1 e 5
-                          'comments_count' => random_int(5, 100),
-                          'total_score' => random_int(100, 300),
-                          'ratings_count' => random_int(5, 100)]) // Inicializamos avg_score como um valor aleatório entre 1 e 5
-                ->each(function (Idea $idea) use ($users) {
+                ->create([
+                    'avg_score'      => round(random_int(0, 500) / 100, 2),
+                    'comments_count' => random_int(5, 100),
+                    'total_score'    => random_int(100, 300),
+                    'ratings_count'  => random_int(5, 100),
+                ])
+                ->each(function (Idea $idea) use ($room, $users, $ensureRoomUser) {
 
-                    // Comentários (podem repetir o mesmo usuário)
-                    Comment::factory(rand(1, 3))
+                    // 2. Vincula o autor da ideia na sala
+                    $ensureRoomUser($room->id, $idea->user_id);
+
+                    // Comentários
+                    $comments = Comment::factory(rand(1, 3))
                         ->for($idea)
                         ->recycle($users)
                         ->create();
 
-                    // Avaliações: garantimos usuários ÚNICOS por ideia usando shuffle/take
+                    foreach ($comments as $comment) {
+                        $ensureRoomUser($room->id, $comment->user_id);
+                    }
+
+                    // Avaliações
                     $ratingsCount = rand(1, min(5, $users->count()));
                     $randomUsersForRatings = $users->shuffle()->take($ratingsCount);
 
@@ -56,6 +83,8 @@ class RoomFactory extends Factory {
                             'idea_id' => $idea->id,
                             'user_id' => $user->id,
                         ]);
+
+                        $ensureRoomUser($room->id, $user->id);
                     }
                 });
         });

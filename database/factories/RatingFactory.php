@@ -17,7 +17,7 @@ class RatingFactory extends Factory
         return [
             'idea_id'   => Idea::factory(),
             'user_id'   => User::factory(),
-            'author_id' => Author::factory(),
+            'author_id' => Author::inRandomOrder()->first()?->id,
             'score'     => $this->faker->numberBetween(1, 5),
             'feedback'  => $this->faker->sentence(),
         ];

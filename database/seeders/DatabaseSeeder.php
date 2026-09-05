@@ -23,11 +23,13 @@ class DatabaseSeeder extends Seeder
             'email' => 'test@example.com',
         ]);
 
-        Room::factory(3)->withFullContent(5)->create();
-
+        
         $this->call([
             AuthorSeeder::class,
         ]);
+
+        Room::factory(3)->withFullContent(5)->create();
+
         
     }
 }
