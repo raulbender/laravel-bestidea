@@ -30,11 +30,15 @@ class RoomFactory extends Factory {
         return $this->afterCreating(function (Room $room) use ($ideasCount) {
             // Criamos uma quantidade de usuários suficiente para os testes
             $users = User::factory(10)->create();
+            
 
             Idea::factory($ideasCount)
                 ->for($room)
                 ->recycle($users)
-                ->create()
+                ->create(['avg_score' => round(random_int(0, 500) / 100, 2), // Inicializamos avg_score como um valor aleatório entre 1 e 5
+                          'comments_count' => random_int(5, 100),
+                          'total_score' => random_int(100, 300),
+                          'ratings_count' => random_int(5, 100)]) // Inicializamos avg_score como um valor aleatório entre 1 e 5
                 ->each(function (Idea $idea) use ($users) {
 
                     // Comentários (podem repetir o mesmo usuário)
