@@ -37,7 +37,8 @@ class RoomController extends Controller
     public function publicRooms() 
     {
         $rooms = Room::where('is_public', true)
-        ->withCount('roomUsers')
+        ->withCount(['roomUsers','ideas','comments'])
+        ->with('user')
             ->latest()
             ->paginate(10);
 
