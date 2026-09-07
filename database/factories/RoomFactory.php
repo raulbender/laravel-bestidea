@@ -12,28 +12,43 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
-class RoomFactory extends Factory 
-{
+class RoomFactory extends Factory {
     protected $model = Room::class;
 
-    public function definition(): array 
-    {
+    public function definition(): array {
         return [
             'uuid'        => (string) Str::uuid(),
             'user_id'     => User::factory(),
             'description' => $this->faker->sentence(),
-            'is_public'   => $this->faker->boolean(),
+            'is_public'   => true,
             'expires_at'  => now()->addDays(7),
         ];
     }
 
-    public function withFullContent(int $ideasCount = 5): static 
-    {
+    /**
+     * State para garantir que a sala seja criada como PÚBLICA
+     */
+    public function public(): static {
+        return $this->state(fn(array $attributes) => [
+            'is_public' => true,
+        ]);
+    }
+
+    /**
+     * State para garantir que a sala seja criada como PRIVADA
+     */
+    public function private(): static {
+        return $this->state(fn(array $attributes) => [
+            'is_public' => false,
+        ]);
+    }
+
+    public function withFullContent(int $ideasCount = 5): static {
         return $this->afterCreating(function (Room $room) use ($ideasCount) {
             $users = User::factory(10)->create();
 
             $authors = Author::all();
-            
+
             // Função helper para vincular o usuário à sala garantindo um author_id
             $ensureRoomUser = function (int $roomId, string $userId) use ($authors) {
                 return RoomUser::firstOrCreate(
