@@ -28,8 +28,8 @@ class DatabaseSeeder extends Seeder
             AuthorSeeder::class,
         ]);
 
-        Room::factory(3)->public()->withFullContent(5)->create();
-        Room::factory(3)->private()->withFullContent(5)->create();
+        Room::factory(3)->public()->withFullContent()->create();
+        Room::factory(3)->private()->withFullContent()->create();
 
 
         
