@@ -6,6 +6,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use App\Models\Room;
+use App\Models\User;
 
 class RoomCreationTest extends TestCase {
     use RefreshDatabase;
@@ -124,13 +125,16 @@ class RoomCreationTest extends TestCase {
      * Test creating public rooms and verifying they appear on the homepage/public endpoint.
      */
     public function test_public_rooms_are_listed_on_the_homepage(): void {
+
+        $user = User::factory()->create(['is_guest' => false]);
         // 1. Act: Create a public room via the API
         $publicPayload = [
             'description' => 'Open Innovation Session',
             'is_public'   => true,
         ];
 
-        $this->postJson('/api/rooms', $publicPayload)
+        $this->actingAs($user)
+            ->postJson('/api/rooms', $publicPayload)
             ->assertStatus(201);
 
         // 2. Act: Create a private room via the API
@@ -139,7 +143,8 @@ class RoomCreationTest extends TestCase {
             'is_public'   => false,
         ];
 
-        $this->postJson('/api/rooms', $privatePayload)
+        $this->actingAs($user)
+            ->postJson('/api/rooms', $privatePayload)
             ->assertStatus(201);
 
         // 3. Act: Fetch the homepage/public listing
