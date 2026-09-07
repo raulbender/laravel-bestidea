@@ -7,20 +7,15 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\RoomResource;
 use App\Models\Room;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
+use App\Http\Requests\StoreRoomRequest;
 use Illuminate\Support\Facades\Auth;
 
 class RoomController extends Controller 
 {
-    public function store(Request $request): JsonResponse 
+    public function store(StoreRoomRequest $request): JsonResponse 
     {
-        $validated = $request->validate([
-            'description' => 'required|string|max:255',
-            'is_public'   => 'nullable|boolean',
-            'expires_at'  => 'nullable|date|after:now',
-        ]);
 
-        $room = Room::create([...$validated, 'user_id' => Auth::id()]);
+        $room = Room::create([...$request->validated(), 'user_id' => Auth::id()]);
 
         return (new RoomResource($room))
             ->response()
@@ -42,6 +37,7 @@ class RoomController extends Controller
     public function publicRooms() 
     {
         $rooms = Room::where('is_public', true)
+        ->withCount('roomUsers')
             ->latest()
             ->paginate(10);
 

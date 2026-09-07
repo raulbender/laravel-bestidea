@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Actions\Ideas\CreateIdeaAction;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\IdeaResource;
+use App\Http\Requests\StoreIdeaRequest;
 use App\Models\Idea;
 use App\Models\Room;
 use Illuminate\Http\JsonResponse;
@@ -13,15 +14,11 @@ use Illuminate\Support\Facades\Auth;
 
 class IdeaController extends Controller 
 {
-    public function store(Request $request, string $uuid, CreateIdeaAction $createIdeaAction): JsonResponse 
+    public function store(StoreIdeaRequest $request, string $uuid, CreateIdeaAction $createIdeaAction): JsonResponse 
     {
-        $validated = $request->validate([
-            'content' => 'required|string|max:1000',
-        ]);
-
         $room = Room::where('uuid', $uuid)->firstOrFail();
 
-        $idea = $createIdeaAction->execute($room, Auth::user(), $validated['content']);
+        $idea = $createIdeaAction->execute($room, Auth::user(), $request->validated(['content']));
 
         $idea->load('author');
 

@@ -7,6 +7,7 @@ use App\Models\Comment;
 use App\Models\Idea;
 use App\Models\RoomUser;
 use App\Http\Resources\Api\CommentResource;
+use App\Http\Requests\StoreCommentRequest;
 use App\Actions\Comments\CreateCommentAction;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -15,15 +16,11 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class CommentController extends Controller {
 
-    public function store(Request $request, int $id, CreateCommentAction $createCommentAction): JsonResponse 
+    public function store(StoreCommentRequest $request, int $id, CreateCommentAction $createCommentAction): JsonResponse 
     {
-        $validated = $request->validate([
-            'content' => 'required|string|max:1000',
-        ]);
-
         $idea = Idea::findOrFail($id);
 
-        $comment = $createCommentAction->execute($idea, Auth::user(), $validated['content']);
+        $comment = $createCommentAction->execute($idea, Auth::user(), $request->validated(['content']));
 
         $comment->load('author');
         
