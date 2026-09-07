@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
 
 class Room extends Model {
@@ -45,6 +46,13 @@ class Room extends Model {
     }
 
     /**
+     * Criador da sala
+     */
+    public function user(): BelongsTo {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
      * Get all ideas created inside this room.
      */
     public function idea(): HasMany {
@@ -57,5 +65,9 @@ class Room extends Model {
 
     public function myRoomUser() {
         return $this->hasOne(RoomUser::class)->where('user_id', auth()->id());
+    }
+
+    public function comments()  {
+        return $this->hasManyThrough(Comment::class, Idea::class);
     }
 }
