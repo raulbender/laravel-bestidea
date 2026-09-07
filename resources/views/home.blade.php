@@ -53,31 +53,40 @@
             <div>
                 <h3 class="text-lg font-bold text-white line-clamp-2 mb-4" x-text="getRoom(item).description"></h3>
 
-                <div class="flex items-center gap-3 text-xs text-slate-400 bg-slate-950/50 px-3 py-2 rounded-xl border border-slate-800/60 mb-4">
-                    <span class="flex items-center gap-1">
-                        💡 <strong class="text-slate-200" x-text="getRoom(item).ideas_count || 0"></strong> Ideias
+                {{-- Badges de Métricas com Flex Wrap e Textos Responsivos --}}
+                <div class="flex flex-wrap items-center gap-2 sm:gap-3 text-xs text-slate-400 bg-slate-950/50 px-3 py-2 rounded-xl border border-slate-800/60 mb-4">
+                    <span class="flex items-center gap-1 whitespace-nowrap">
+                        💡 <strong class="text-slate-200" x-text="getRoom(item).ideas_count || 0"></strong>
+                        <span class="hidden sm:inline">Ideias</span>
                     </span>
-                    <span>•</span>
-                    <span class="flex items-center gap-1">
-                        💬 <strong class="text-slate-200" x-text="getRoom(item).comments_count || 0"></strong> Comentários
+
+                    <span class="text-slate-700">•</span>
+
+                    <span class="flex items-center gap-1 whitespace-nowrap">
+                        💬 <strong class="text-slate-200" x-text="getRoom(item).comments_count || 0"></strong>
+                        <span class="hidden sm:inline">Comentários</span>
                     </span>
-                    <span>•</span>
-                    <span class="flex items-center gap-1">
-                        👥 <strong class="text-slate-200" x-text="getRoom(item).participants_count || 0"></strong> Pessoas
+
+                    <span class="text-slate-700">•</span>
+
+                    <span class="flex items-center gap-1 whitespace-nowrap">
+                        👥 <strong class="text-slate-200" x-text="getRoom(item).participants_count || 0"></strong>
+                        <span class="hidden sm:inline">Pessoas</span>
                     </span>
                 </div>
             </div>
 
-            <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between">
-                <div class="flex flex-col">
-                    <span class="text-xs font-medium text-slate-300">
+            {{-- Rodapé do Card --}}
+            <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between gap-2">
+                <div class="flex flex-col min-w-0">
+                    <span class="text-xs font-medium text-slate-300 truncate">
                         Criado por <span class="text-amber-400 font-semibold" x-text="item.owner_name || 'Bill'"></span>
                     </span>
-                    <span class="text-[11px] text-slate-500" x-text="getRoom(item).expires_at_human ? 'Expira em ' + getRoom(item).expires_at_human : 'Sem expiração'"></span>
+                    <span class="text-[11px] text-slate-500 truncate" x-text="getRoom(item).expires_at_human ? 'Expira em ' + getRoom(item).expires_at_human : 'Sem expiração'"></span>
                 </div>
 
                 <a :href="'/rooms/' + getRoom(item).uuid" 
-                   class="px-3.5 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 text-xs font-bold rounded-lg border border-amber-500/20 transition duration-150 inline-flex items-center gap-1">
+                   class="shrink-0 px-3.5 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 text-xs font-bold rounded-lg border border-amber-500/20 transition duration-150 inline-flex items-center gap-1">
                     Entrar &rarr;
                 </a>
             </div>
