@@ -6,6 +6,7 @@ namespace App\Http\Resources\Api;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Carbon\CarbonInterface;
 
 class RoomResource extends JsonResource {
     /**
@@ -30,10 +31,16 @@ class RoomResource extends JsonResource {
                 'title'       => $this->title,
                 'description' => $this->description,
                 'is_public'   => $this->is_public,
-                'expires_at'  => $this->expires_at,
-                'created_at'  => $this->created_at,
+                'expires_at'  => $this->expires_at,                
+                // Diff relativo absoluto (ex: "12 horas", "2 dias")
+                'expires_at_human'   => $this->expires_at?->diffForHumans(['syntax' => CarbonInterface::DIFF_ABSOLUTE]),
+                'ideas_count'        => $this->ideas_count ?? $this->ideas()->count(),
+                'comments_count'     => $this->comments_count ?? ($this->relationLoaded('comments') ? $this->comments->count() : $this->comments()->count()),
+                'participants_count' => $this->room_users_count ?? $this->roomUsers()->count(),
+                'created_at'         => $this->created_at,
+                'created_at_human'   => $this->created_at?->diffForHumans(),
             ],
-
+            'owner_name' => $this->user?->name ?? 'Anônimo',
             'is_owner' => $user ? $this->user_id === $user->id : false,
 
             'my_persona' => $roomUser && $roomUser->author ? [
