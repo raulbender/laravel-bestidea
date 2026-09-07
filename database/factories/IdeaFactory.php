@@ -22,7 +22,7 @@ class IdeaFactory extends Factory
                 'avatar' => 'avatar.png',
                 'type'   => 0,
             ])->id,
-            'room_id'       => Room::factory(),
+            'room_id'       => Room::factory()->private(),
             'content'       => $this->faker->sentence(),
             'total_score'   => 0,
             'ratings_count' => 0,
