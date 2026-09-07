@@ -16,7 +16,7 @@ class IdeaCreationTest extends TestCase {
     public function test_user_can_create_an_idea_in_a_room(): void {
         $this->seed(\Database\Seeders\AuthorSeeder::class);
 
-        $room = Room::factory()->create();
+        $room = Room::factory()->private()->create();
 
         $payload = [
             'content' => 'Adicionar autenticação via WebAuthn sem senha',
@@ -55,7 +55,7 @@ class IdeaCreationTest extends TestCase {
      * Test validation rules for idea creation.
      */
     public function test_cannot_create_idea_without_content(): void {
-        $room = Room::factory()->create();
+        $room = Room::factory()->private()->create();
 
         $response = $this->postJson("/api/rooms/{$room->uuid}/ideas", []);
 
@@ -66,7 +66,7 @@ class IdeaCreationTest extends TestCase {
     public function test_idea_is_associated_with_users_assigned_room_author(): void {
         $this->seed(\Database\Seeders\AuthorSeeder::class);
 
-        $room = Room::factory()->create();
+        $room = Room::factory()->private()->create();
 
         // 1. Visitante faz GET para garantir que recebe um autor (ex: Raposa)
         $roomResponse = $this->getJson("/api/rooms/{$room->uuid}");

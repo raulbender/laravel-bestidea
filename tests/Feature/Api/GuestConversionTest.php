@@ -22,7 +22,7 @@ class GuestConversionTest extends TestCase
             'password'     => null,
         ]);
 
-        $room = Room::factory()->create([
+        $room = Room::factory()->public()->create([
             'user_id'     => $guestUser->id,
             'description' => 'Guest Session Room',
         ]);
