@@ -35,77 +35,89 @@
         </div>
 
         {{-- Loading Skeleton --}}
-        <template x-if="loading && rooms.length === 0">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <template x-for="i in 3" :key="i">
-                    <div class="animate-pulse bg-slate-900 border border-slate-800 h-44 rounded-2xl p-6 flex flex-col justify-between">
-                        <div class="h-4 bg-slate-800 rounded w-3/4"></div>
-                        <div class="h-3 bg-slate-800/60 rounded w-1/2"></div>
-                        <div class="h-8 bg-slate-800 rounded w-full mt-4"></div>
-                    </div>
-                </template>
-            </div>
-        </template>
-
-        {{-- Cards Grid --}}
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" x-cloak>
-            <template x-for="room in rooms" :key="room.id">
-                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-sm hover:border-slate-700 transition duration-200 flex flex-col justify-between">
-                    <div>
-                        <div class="flex items-center justify-between mb-3">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                                Aberta
-                            </span>
-                            <span class="text-xs text-slate-500" x-text="room.created_at_human"></span>
-                        </div>
-                        <h3 class="text-lg font-bold text-white line-clamp-2 mb-2" x-text="room.description"></h3>
-                    </div>
-
-                    <div class="mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-between">
-                        <span class="text-xs text-slate-400">
-                            <strong x-text="room.participants_count || 0"></strong> participantes
-                        </span>
-                        
-                        <a :href="'/rooms/' + room.uuid" class="inline-flex items-center text-sm font-semibold text-amber-400 hover:text-amber-300">
-                            Entrar na Sala &rarr;
-                        </a>
-                    </div>
+        <div x-show="loading && rooms.length === 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <template x-for="i in 3" :key="i">
+                <div class="animate-pulse bg-slate-900 border border-slate-800 h-52 rounded-2xl p-6 flex flex-col justify-between">
+                    <div class="h-5 bg-slate-800 rounded w-3/4 mb-4"></div>
+                    <div class="h-4 bg-slate-800/60 rounded w-full mb-2"></div>
+                    <div class="h-8 bg-slate-800 rounded w-full mt-auto"></div>
                 </div>
             </template>
         </div>
 
-        {{-- Empty State --}}
-        <template x-if="!loading && rooms.length === 0">
-            <div class="text-center py-12 bg-slate-900/50 rounded-2xl border border-dashed border-slate-800">
-                <p class="text-slate-400">Nenhuma sala pública ativa no momento. Seja o primeiro a criar!</p>
+{{-- Cards Grid --}}
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" x-show="!loading || rooms.length > 0">
+    <template x-for="item in rooms" :key="getRoom(item).id || getRoom(item).uuid">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm hover:border-slate-700 transition duration-200 flex flex-col justify-between">
+            
+            <div>
+                <h3 class="text-lg font-bold text-white line-clamp-2 mb-4" x-text="getRoom(item).description"></h3>
+
+                <div class="flex items-center gap-3 text-xs text-slate-400 bg-slate-950/50 px-3 py-2 rounded-xl border border-slate-800/60 mb-4">
+                    <span class="flex items-center gap-1">
+                        💡 <strong class="text-slate-200" x-text="getRoom(item).ideas_count || 0"></strong> Ideias
+                    </span>
+                    <span>•</span>
+                    <span class="flex items-center gap-1">
+                        💬 <strong class="text-slate-200" x-text="getRoom(item).comments_count || 0"></strong> Comentários
+                    </span>
+                    <span>•</span>
+                    <span class="flex items-center gap-1">
+                        👥 <strong class="text-slate-200" x-text="getRoom(item).participants_count || 0"></strong> Pessoas
+                    </span>
+                </div>
             </div>
-        </template>
+
+            <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between">
+                <div class="flex flex-col">
+                    <span class="text-xs font-medium text-slate-300">
+                        Criado por <span class="text-amber-400 font-semibold" x-text="item.owner_name || 'Bill'"></span>
+                    </span>
+                    <span class="text-[11px] text-slate-500" x-text="getRoom(item).expires_at_human ? 'Expira em ' + getRoom(item).expires_at_human : 'Sem expiração'"></span>
+                </div>
+
+                <a :href="'/rooms/' + getRoom(item).uuid" 
+                   class="px-3.5 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 text-xs font-bold rounded-lg border border-amber-500/20 transition duration-150 inline-flex items-center gap-1">
+                    Entrar &rarr;
+                </a>
+            </div>
+
+        </div>
+    </template>
+</div>
+
+        {{-- Empty State --}}
+        <div x-show="!loading && rooms.length === 0" class="text-center py-12 bg-slate-900/50 rounded-2xl border border-dashed border-slate-800">
+            <p class="text-slate-400">Nenhuma sala pública ativa no momento. Seja o primeiro a criar!</p>
+        </div>
 
         {{-- Botão de Paginação --}}
-        <template x-if="nextPageUrl">
-            <div class="text-center pt-6">
-                <button 
-                    @click="loadMore()" 
-                    :disabled="loading" 
-                    class="px-6 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium rounded-xl transition text-sm disabled:opacity-50"
-                >
-                    <span x-show="!loading">Carregar mais salas</span>
-                    <span x-show="loading" x-cloak>Carregando...</span>
-                </button>
-            </div>
-        </template>
+        <div x-show="nextPageUrl" class="text-center pt-6">
+            <button 
+                @click="loadMore()" 
+                :disabled="loading" 
+                class="px-6 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium rounded-xl transition text-sm disabled:opacity-50"
+            >
+                <span x-show="!loading">Carregar mais salas</span>
+                <span x-show="loading">Carregando...</span>
+            </button>
+        </div>
     </section>
 </div>
 
 <script>
-function publicRoomsFeed() {
-    return {
+document.addEventListener('alpine:init', () => {
+    Alpine.data('publicRoomsFeed', () => ({
         rooms: [],
         nextPageUrl: '/api/rooms/public',
         loading: false,
 
         init() {
             this.fetchRooms();
+        },
+
+        getRoom(item) {
+            return item.room || item;
         },
 
         async fetchRooms() {
@@ -128,7 +140,7 @@ function publicRoomsFeed() {
         loadMore() {
             this.fetchRooms();
         }
-    }
-}
+    }));
+});
 </script>
 @endsection
