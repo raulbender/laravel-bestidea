@@ -14,14 +14,14 @@
         </div>
 
         <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white mb-4">
-            Ideias anônimas. Decisões sem viés.
+            {{ __('app.home.hero.title') }}
         </h1>
         <p class="text-slate-400 max-w-xl text-base sm:text-lg mb-8">
-            Crie uma sala em segundos, convide seu time por link e colete feedback sincero sem a pressão da hierarquia.
+            {{ __('app.home.hero.subtitle') }}
         </p>
 
         <a href="{{ route('rooms.create') }}" class="px-8 py-4 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-lg rounded-xl shadow-lg shadow-amber-500/10 hover:shadow-amber-500/20 transition duration-200">
-            Criar Nova Sala
+            {{ __('app.home.hero.cta') }}
         </a>
     </section>
 
@@ -30,8 +30,8 @@
     {{-- FEED DE SALAS PÚBLICAS --}}
     <section x-data="publicRoomsFeed()" class="space-y-6">
         <div>
-            <h2 class="text-2xl font-bold text-white">Salas Públicas para Colaborar</h2>
-            <p class="text-sm text-slate-400">Explore temas abertos e deixe suas ideias ou avaliações anonimamente.</p>
+            <h2 class="text-2xl font-bold text-white">{{ __('app.home.feed.title') }}</h2>
+            <p class="text-sm text-slate-400">{{ __('app.home.feed.subtitle') }}</p>
         </div>
 
         {{-- Loading Skeleton --}}
@@ -45,111 +45,113 @@
             </template>
         </div>
 
-{{-- Cards Grid --}}
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" x-show="!loading || rooms.length > 0">
-    <template x-for="item in rooms" :key="getRoom(item).id || getRoom(item).uuid">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm hover:border-slate-700 transition duration-200 flex flex-col justify-between">
-            
-            <div>
-                <h3 class="text-lg font-bold text-white line-clamp-2 mb-4" x-text="getRoom(item).description"></h3>
+        {{-- Cards Grid --}}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" x-show="!loading || rooms.length > 0">
+            <template x-for="item in rooms" :key="getRoom(item).id || getRoom(item).uuid">
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm hover:border-slate-700 transition duration-200 flex flex-col justify-between">
 
-                {{-- Badges de Métricas com Flex Wrap e Textos Responsivos --}}
-                <div class="flex flex-wrap items-center gap-2 sm:gap-3 text-xs text-slate-400 bg-slate-950/50 px-3 py-2 rounded-xl border border-slate-800/60 mb-4">
-                    <span class="flex items-center gap-1 whitespace-nowrap">
-                        💡 <strong class="text-slate-200" x-text="getRoom(item).ideas_count || 0"></strong>
-                        <span class="hidden sm:inline">Ideias</span>
-                    </span>
+                    <div>
+                        <h3 class="text-lg font-bold text-white line-clamp-2 mb-4" x-text="getRoom(item).description"></h3>
 
-                    <span class="text-slate-700">•</span>
+                        {{-- Badges de Métricas --}}
+                        {{-- Subtitua a div de métricas por esta estrutura em Grid --}}
+<div class="grid grid-cols-3 gap-2 text-center text-xs text-slate-400 bg-slate-950/50 px-3 py-2 rounded-xl border border-slate-800/60 mb-4">
+    
+    <div class="flex items-center justify-center gap-1 min-w-0">
+        <span>💡</span>
+        <strong class="text-slate-200" x-text="getRoom(item).ideas_count || 0"></strong>
+        <span class="hidden sm:inline text-slate-400">{{ __('app.home.card.ideas') }}</span>
+    </div>
 
-                    <span class="flex items-center gap-1 whitespace-nowrap">
-                        💬 <strong class="text-slate-200" x-text="getRoom(item).comments_count || 0"></strong>
-                        <span class="hidden sm:inline">Comentários</span>
-                    </span>
+    <div class="flex items-center justify-center gap-1 border-x border-slate-800/80 px-1 min-w-0">
+        <span>💬</span>
+        <strong class="text-slate-200" x-text="getRoom(item).comments_count || 0"></strong>
+        <span class="hidden sm:inline text-slate-400">{{ __('app.home.card.comments') }}</span>
+    </div>
 
-                    <span class="text-slate-700">•</span>
+    <div class="flex items-center justify-center gap-1 min-w-0">
+        <span>👥</span>
+        <strong class="text-slate-200" x-text="getRoom(item).participants_count || 0"></strong>
+        <span class="hidden sm:inline text-slate-400">{{ __('app.home.card.people') }}</span>
+    </div>
 
-                    <span class="flex items-center gap-1 whitespace-nowrap">
-                        👥 <strong class="text-slate-200" x-text="getRoom(item).participants_count || 0"></strong>
-                        <span class="hidden sm:inline">Pessoas</span>
-                    </span>
-                </div>
-            </div>
-
-            {{-- Rodapé do Card --}}
-            <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between gap-2">
-                <div class="flex flex-col min-w-0">
-                    <span class="text-xs font-medium text-slate-300 truncate">
-                        Criado por <span class="text-amber-400 font-semibold" x-text="item.owner_name || 'Bill'"></span>
-                    </span>
-                    <span class="text-[11px] text-slate-500 truncate" x-text="getRoom(item).expires_at_human ? 'Expira em ' + getRoom(item).expires_at_human : 'Sem expiração'"></span>
-                </div>
-
-                <a :href="'/rooms/' + getRoom(item).uuid" 
-                   class="shrink-0 px-3.5 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 text-xs font-bold rounded-lg border border-amber-500/20 transition duration-150 inline-flex items-center gap-1">
-                    Entrar &rarr;
-                </a>
-            </div>
-
-        </div>
-    </template>
 </div>
+                    </div>
+
+                    {{-- Rodapé do Card --}}
+                    <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between gap-2">
+                        <div class="flex flex-col min-w-0">
+                            <span class="text-xs font-medium text-slate-300 truncate">
+                                {{ __('app.home.card.created_by') }} <span class="text-amber-400 font-semibold" x-text="item.owner_name || 'Bill'"></span>
+                            </span>
+                            {{-- Repare que expires_at_human já deve vir formatado/traduzido pela API --}}
+                            <span class="text-[11px] text-slate-500 truncate" x-text="getRoom(item).expires_at_human ? '{{ __('app.ideas.expires_in') }}' + getRoom(item).expires_at_human : '{{ __('app.ideas.no_expires') }}'"></span>
+                        </div>
+
+                        <a :href="'/rooms/' + getRoom(item).uuid"
+                            class="shrink-0 px-3.5 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 text-xs font-bold rounded-lg border border-amber-500/20 transition duration-150 inline-flex items-center gap-1">
+                            {{ __('app.home.card.enter') }} &rarr;
+                        </a>
+                    </div>
+
+                </div>
+            </template>
+        </div>
 
         {{-- Empty State --}}
         <div x-show="!loading && rooms.length === 0" class="text-center py-12 bg-slate-900/50 rounded-2xl border border-dashed border-slate-800">
-            <p class="text-slate-400">Nenhuma sala pública ativa no momento. Seja o primeiro a criar!</p>
+            <p class="text-slate-400">{{ __('app.home.feed.empty') }}</p>
         </div>
 
         {{-- Botão de Paginação --}}
         <div x-show="nextPageUrl" class="text-center pt-6">
-            <button 
-                @click="loadMore()" 
-                :disabled="loading" 
-                class="px-6 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium rounded-xl transition text-sm disabled:opacity-50"
-            >
-                <span x-show="!loading">Carregar mais salas</span>
-                <span x-show="loading">Carregando...</span>
+            <button
+                @click="loadMore()"
+                :disabled="loading"
+                class="px-6 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium rounded-xl transition text-sm disabled:opacity-50">
+                <span x-show="!loading">{{ __('app.home.feed.load_more') }}</span>
+                <span x-show="loading">{{ __('app.home.feed.loading') }}</span>
             </button>
         </div>
     </section>
 </div>
 
 <script>
-document.addEventListener('alpine:init', () => {
-    Alpine.data('publicRoomsFeed', () => ({
-        rooms: [],
-        nextPageUrl: '/api/rooms/public',
-        loading: false,
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('publicRoomsFeed', () => ({
+            rooms: [],
+            nextPageUrl: '/api/rooms/public',
+            loading: false,
 
-        init() {
-            this.fetchRooms();
-        },
+            init() {
+                this.fetchRooms();
+            },
 
-        getRoom(item) {
-            return item.room || item;
-        },
+            getRoom(item) {
+                return item.room || item;
+            },
 
-        async fetchRooms() {
-            if (!this.nextPageUrl || this.loading) return;
-            this.loading = true;
+            async fetchRooms() {
+                if (!this.nextPageUrl || this.loading) return;
+                this.loading = true;
 
-            try {
-                const response = await fetch(this.nextPageUrl);
-                const json = await response.json();
-                
-                this.rooms = [...this.rooms, ...(json.data || [])];
-                this.nextPageUrl = json.links ? json.links.next : null;
-            } catch (error) {
-                console.error('Erro ao buscar salas públicas:', error);
-            } finally {
-                this.loading = false;
+                try {
+                    const response = await fetch(this.nextPageUrl);
+                    const json = await response.json();
+
+                    this.rooms = [...this.rooms, ...(json.data || [])];
+                    this.nextPageUrl = json.links ? json.links.next : null;
+                } catch (error) {
+                    console.error('Erro ao buscar salas públicas:', error);
+                } finally {
+                    this.loading = false;
+                }
+            },
+
+            loadMore() {
+                this.fetchRooms();
             }
-        },
-
-        loadMore() {
-            this.fetchRooms();
-        }
-    }));
-});
+        }));
+    });
 </script>
 @endsection
