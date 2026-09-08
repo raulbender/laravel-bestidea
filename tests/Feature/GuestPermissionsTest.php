@@ -135,7 +135,7 @@ class GuestPermissionsTest extends TestCase {
         $this->postJson("/api/rooms/{$room->uuid}/ideas", ['content' => 'Ideia'])->assertStatus(201);
 
         // 2. Comentar
-        $this->postJson("/api/ideas/{$idea->id}/comments", ['content' => 'Comentário'])->assertStatus(201);
+        $this->postJson("/api/ideas/{$idea->id}/comments", ['room_uuid' => $room->uuid,'content'   => 'Comentário via JSON Payload'])->assertStatus(201);
 
         // 3. Avaliar com Feedback
         $this->postJson("/api/ideas/{$idea->id}/ratings", [

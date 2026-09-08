@@ -21,7 +21,7 @@ class CommentListingTest extends TestCase {
         ]);
 
         $response = $this->actingAs($user)
-            ->getJson("/api/ideas/{$idea->id}/comments");
+            ->getJson("/api/ideas/{$idea->id}/comments?room_uuid={$idea->room->uuid}");
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -57,7 +57,7 @@ class CommentListingTest extends TestCase {
         $commentB = Comment::factory()->create(['idea_id' => $otherIdea->id]);
 
         $response = $this->actingAs($user)
-            ->getJson("/api/ideas/{$targetIdea->id}/comments");
+            ->getJson("/api/ideas/{$targetIdea->id}/comments?room_uuid={$targetIdea->room->uuid}");
 
         $response->assertStatus(200);
         $this->assertCount(1, $response->json('data'));
@@ -66,9 +66,10 @@ class CommentListingTest extends TestCase {
 
     public function test_returns_404_when_listing_comments_for_non_existing_idea(): void {
         $user = User::factory()->create();
+        $idea = Idea::factory()->create();
 
         $response = $this->actingAs($user)
-            ->getJson('/api/ideas/999999/comments');
+            ->getJson('/api/ideas/999999/comments?room_uuid=' . $idea->room->uuid);
 
         $response->assertStatus(404);
     }

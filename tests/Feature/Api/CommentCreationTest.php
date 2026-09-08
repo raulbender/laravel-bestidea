@@ -19,6 +19,7 @@ class CommentCreationTest extends TestCase
         $response = $this->actingAs($user)
             ->postJson("/api/ideas/{$idea->id}/comments", [
                 'content' => 'Excelente sugestão de melhoria!',
+                'room_uuid' => $idea->room->uuid,
             ]);
 
         $response->assertStatus(201)
@@ -45,10 +46,14 @@ class CommentCreationTest extends TestCase
     public function test_cannot_comment_on_non_existing_idea(): void
     {
         $user = User::factory()->create();
+        $idea = Idea::factory()->create();
+
+        
 
         $response = $this->actingAs($user)
             ->postJson('/api/ideas/999999/comments', [
                 'content' => 'Comentário em ideia inexistente',
+                'room_uuid' => $idea->room->uuid,
             ]);
 
         $response->assertStatus(404);
@@ -62,6 +67,7 @@ class CommentCreationTest extends TestCase
         $response = $this->actingAs($user)
             ->postJson("/api/ideas/{$idea->id}/comments", [
                 'content' => '',
+                'room_uuid' => $idea->room->uuid,
             ]);
 
         $response->assertStatus(422)
@@ -76,6 +82,7 @@ class CommentCreationTest extends TestCase
         $response = $this->actingAs($user)
             ->postJson("/api/ideas/{$idea->id}/comments", [
                 'content' => str_repeat('a', 1001),
+                'room_uuid' => $idea->room->uuid,
             ]);
 
         $response->assertStatus(422)
@@ -87,8 +94,8 @@ class CommentCreationTest extends TestCase
         $user = User::factory()->create();
         $idea = Idea::factory()->create(['comments_count' => 0]);
 
-        $this->actingAs($user)->postJson("/api/ideas/{$idea->id}/comments", ['content' => 'Primeiro']);
-        $this->actingAs($user)->postJson("/api/ideas/{$idea->id}/comments", ['content' => 'Segundo']);
+        $this->actingAs($user)->postJson("/api/ideas/{$idea->id}/comments", ['content' => 'Primeiro', 'room_uuid' => $idea->room->uuid])->assertStatus(201);
+        $this->actingAs($user)->postJson("/api/ideas/{$idea->id}/comments", ['content' => 'Segundo', 'room_uuid' => $idea->room->uuid])->assertStatus(201);
 
         $this->assertEquals(2, $idea->fresh()->comments_count);
     }
