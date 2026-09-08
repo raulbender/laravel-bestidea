@@ -14,10 +14,11 @@ class IdeaListingTest extends TestCase {
 
     public function test_can_list_ideas_paginated(): void {
         $user = User::factory()->create();
-        Idea::factory()->count(15)->create();
+        $room = Room::factory()->create();
+        Idea::factory()->count(15)->create(['room_id' => $room->id]);
 
         $response = $this->actingAs($user)
-            ->getJson('/api/ideas');
+            ->getJson("/api/ideas?room_uuid={$room->uuid}");
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -50,10 +51,9 @@ class IdeaListingTest extends TestCase {
         $ideaA1 = Idea::factory()->create(['room_id' => $room->id, 'user_id' => $userA->id]);
         $ideaA2 = Idea::factory()->create(['room_id' => $room->id, 'user_id' => $userA->id]);
         $ideaB1 = Idea::factory()->create(['room_id' => $room->id, 'user_id' => $userB->id]);
-
-        // Filtra passando a flag 'mine=1' e o 'room_id'
+        
         $response = $this->actingAs($userA)
-            ->getJson("/api/ideas?room_id={$room->id}&filter=mine");
+            ->getJson("/api/ideas?room_uuid={$room->uuid}&filter=mine");
 
         $response->assertStatus(200);
         $this->assertCount(2, $response->json('data'));
@@ -63,17 +63,29 @@ class IdeaListingTest extends TestCase {
 
 
 
+
     public function test_can_filter_ideas_by_top_rated(): void {
         $user = User::factory()->create();
-
-        $ideaLow = Idea::factory()->create(['avg_score' => 2.00, 'ratings_count' => 5]);
+        $room = Room::factory()->create();
+        
+        $ideaLow = Idea::factory()->create([
+            'room_id' => $room->id,
+            'avg_score' => 2.00,
+            'ratings_count' => 5]);
 
         // Mesma média (4.80), mas $ideaHighHasMoreRatings tem mais votos e deve desempatar em 1º lugar
-        $ideaHighEqualAvg = Idea::factory()->create(['avg_score' => 4.80, 'ratings_count' => 3]);
-        $ideaHighHasMoreRatings = Idea::factory()->create(['avg_score' => 4.80, 'ratings_count' => 10]);
+        $ideaHighEqualAvg = Idea::factory()->create([
+            'room_id' => $room->id,
+            'avg_score' => 4.80,
+            'ratings_count' => 3]);
+
+        $ideaHighHasMoreRatings = Idea::factory()->create([
+            'room_id' => $room->id,
+            'avg_score' => 4.80,
+            'ratings_count' => 10]);
 
         $response = $this->actingAs($user)
-            ->getJson('/api/ideas?sort=top_rated');
+            ->getJson("/api/ideas?room_uuid={$room->uuid}&sort=top_rated");
 
         $response->assertStatus(200);
         $this->assertEquals($ideaHighHasMoreRatings->id, $response->json('data.0.id'));
@@ -85,14 +97,22 @@ class IdeaListingTest extends TestCase {
 
     public function test_can_filter_ideas_by_recent(): void {
         $user = User::factory()->create();
+        $room = Room::factory()->create();
 
-        $oldIdea = Idea::factory()->create(['created_at' => now()->subDays(5)]);
-        $newIdea = Idea::factory()->create(['created_at' => now()]);
+        $oldIdea = Idea::factory()->create([
+            'room_id' => $room->id,
+            'created_at' => now()->subDays(5)]);
+        $newIdea = Idea::factory()->create([
+            'room_id' => $room->id,
+            'created_at' => now()]);
 
         $response = $this->actingAs($user)
-            ->getJson('/api/ideas?sort=recent');
+            ->getJson("/api/ideas?room_uuid={$room->uuid}&sort=recent");
 
+       
         $response->assertStatus(200);
+        // Garante que APENAS os dados daquela sala retornaram
+        $this->assertCount(2, $response->json('data'));
         $this->assertEquals($newIdea->id, $response->json('data.0.id'));
         $this->assertEquals($oldIdea->id, $response->json('data.1.id'));
     }
@@ -101,15 +121,18 @@ class IdeaListingTest extends TestCase {
 
     public function test_can_filter_ideas_by_hot(): void {
         $user = User::factory()->create();
+        $room = Room::factory()->create();
 
         // 1. Ideia recente mas com engajamento médio (ID menor)
         $recentMediumScore = Idea::factory()->create([
+            'room_id' => $room->id,
             'total_score' => 30,
             'created_at'  => now()->subDays(1),
         ]);
 
         // 2. Ideia RECENTE e MUITO ENGAJADA -> DEVE SER A 1ª COLOCADA
         $recentHighScore = Idea::factory()->create([
+            'room_id' => $room->id,
             'total_score' => 80,
             'created_at'  => now()->subDays(2),
         ]);
@@ -117,18 +140,21 @@ class IdeaListingTest extends TestCase {
         // 3. Ideia ANTIGA (fora da janela de 30 dias) com score altíssimo
         // Mesmo tendo score 200, por ser antiga deve ficar abaixo ou ser desconsiderada
         $oldHighScore = Idea::factory()->create([
+            'room_id' => $room->id,
             'total_score' => 200,
             'created_at'  => now()->subDays(45),
         ]);
 
         // 4. Ideia recente com nota zero (ID maior)
         $recentZeroScore = Idea::factory()->create([
+            'room_id' => $room->id,
             'total_score' => 0,
             'created_at'  => now()->subMinutes(10),
         ]);
+        
 
         $response = $this->actingAs($user)
-            ->getJson('/api/ideas?sort=hot');
+            ->getJson('/api/ideas?room_uuid=' . $room->uuid . '&sort=hot');
 
         $response->assertStatus(200);
 
