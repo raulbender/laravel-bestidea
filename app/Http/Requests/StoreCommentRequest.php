@@ -2,20 +2,30 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
 use App\Models\Idea;
+use Illuminate\Foundation\Http\FormRequest;
 
 class StoreCommentRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        $user = $this->user();
         $ideaId = $this->route('id');
-        $idea = $ideaId ? Idea::with('room')->find($ideaId) : null;
-        $room = $idea?->room;
+        $idea = Idea::find($ideaId);
 
-        // Guest não pode comentar em sala pública
-        if ($room && $room->is_public && $user?->is_guest) {
+        if (! $idea) {
+            return true;
+        }
+
+        $roomUuid = $this->input('room_uuid') ?? $this->query('room_uuid');
+
+        $hasValidKey = $roomUuid && $idea->room && $idea->room->uuid === $roomUuid;
+
+        if (! $hasValidKey) {
+            return false;
+        }
+
+        // Convidados não podem comentar em salas públicas
+        if ($idea->room->is_public && $this->user()?->is_guest) {
             return false;
         }
 
@@ -25,7 +35,8 @@ class StoreCommentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'content' => ['required', 'string', 'max:1000'],
+            'content'   => ['required', 'string', 'max:1000'],
+            'room_uuid' => ['nullable', 'string', 'uuid'],
         ];
     }
 }
