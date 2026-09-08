@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'BestIdea') }} - Ideias Anônimas & Decisões Sem Viés</title>
+    <title>{{ config('app.name', 'BestIdea') }} - {{ __('app.title') }}</title>
 
     {{-- Importação do Vite com CSS e JS (que já traz o Alpine.js) --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -30,21 +30,21 @@
             <div class="flex items-center gap-4">
                 @auth
                     <a href="{{ route('dashboard') }}" class="text-sm font-medium text-slate-300 hover:text-white transition">
-                        Meu Painel
+                        {{ __('auth.dashboard') }}
                     </a>
                     
                     <form method="POST" action="{{ route('logout') }}" class="inline">
                         @csrf
                         <button type="submit" class="text-sm font-medium text-rose-400 hover:text-rose-300 transition">
-                            Sair
+                            {{ __('auth.logout') }}
                         </button>
                     </form>
                 @else
                     <a href="{{ route('login') }}" class="text-sm font-semibold text-slate-300 hover:text-white transition">
-                        Entrar
+                        {{ __('auth.login') }}
                     </a>
                     <a href="{{ route('register') }}" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-sm rounded-lg transition shadow-sm">
-                        Criar Conta
+                        {{ __('auth.register') }}
                     </a>
                 @endauth
             </div>
@@ -58,7 +58,7 @@
 
     {{-- FOOTER GLOBAL --}}
     <footer class="border-t border-slate-900 bg-slate-950/80 py-6 text-center text-xs text-slate-500">
-        <p>&copy; {{ date('Y') }} BestIdea. Decisões sem viés acionadas por IA.</p>
+        <p>&copy; {{ date('Y') }} {{ __('app.subtitle') }}</p>
     </footer>
 
 </body>
