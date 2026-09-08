@@ -40,11 +40,12 @@ class RoomResource extends JsonResource {
                 'created_at'         => $this->created_at,
                 'created_at_human'   => $this->created_at?->diffForHumans(),
             ],
-            'owner_name' => $this->user?->name ?? 'Anônimo',
+            'owner_name' => $this->user?->name ?? __('app.idea.anonymous'),
+            
             'is_owner' => $user ? $this->user_id === $user->id : false,
 
             'my_persona' => $roomUser && $roomUser->author ? [
-                'name'   => $roomUser->author->name,
+                'name'   => __($roomUser->author->name),
                 'avatar' => $roomUser->author->avatar,
                 'type'   => $roomUser->author->type,
             ] : null,
