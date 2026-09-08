@@ -26,6 +26,7 @@ class GuestPermissionsTest extends TestCase {
 
         $response = $this->postJson("/api/ideas/{$idea->id}/ratings", [
             'score' => 5,
+            'room_uuid' => $room->uuid,
         ]);
 
         $response->assertStatus(201);
@@ -42,6 +43,7 @@ class GuestPermissionsTest extends TestCase {
 
         $response = $this->postJson("/api/rooms/{$room->uuid}/ideas", [
             'content' => 'Minha ideia em sala pública',
+            'room_uuid' => $room->uuid,
         ]);
 
         $response->assertStatus(403);
@@ -54,6 +56,7 @@ class GuestPermissionsTest extends TestCase {
 
         $response = $this->postJson("/api/ideas/{$idea->id}/comments", [
             'content' => 'Comentário em sala pública',
+            'room_uuid' => $room->uuid,
         ]);
 
         $response->assertStatus(403);
@@ -78,6 +81,7 @@ class GuestPermissionsTest extends TestCase {
         // Ação e Asserção: foca puramente no endpoint de ideias
         $this->postJson("/api/rooms/{$room->uuid}/ideas", [
             'content' => 'Ideia em sala privada',
+            'room_uuid' => $room->uuid,
         ])->assertStatus(201);
     }
 
@@ -110,6 +114,7 @@ class GuestPermissionsTest extends TestCase {
 
         $response = $this->postJson("/api/ideas/{$idea->id}/ratings", [
             'score' => 4,
+            'room_uuid' => $room->uuid,
             'feedback' => 'Excelente ideia, parabéns!',
         ]);
 
@@ -141,6 +146,7 @@ class GuestPermissionsTest extends TestCase {
         $this->postJson("/api/ideas/{$idea->id}/ratings", [
             'score' => 5,
             'feedback' => 'Feedback liberado em sala privada',
+            'room_uuid' => $room->uuid,
         ])->assertStatus(201);
     }
 
@@ -171,6 +177,7 @@ class GuestPermissionsTest extends TestCase {
 
         $this->actingAs($user)->postJson("/api/rooms/{$uuid}/ideas", [
             'content' => 'Ideia oficial em sala pública',
+            'room_uuid' => $uuid,
         ])->assertStatus(201);
     }
 
@@ -181,6 +188,7 @@ class GuestPermissionsTest extends TestCase {
         $this->assertDatabaseCount('users', 1);
 
         $this->postJson("/api/rooms/{$room->uuid}/ideas", [
+            'room_uuid' => $room->uuid,
             'content' => 'Primeira interação de um guest',
         ])->assertStatus(201);
 

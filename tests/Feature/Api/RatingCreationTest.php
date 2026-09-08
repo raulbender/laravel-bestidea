@@ -24,6 +24,7 @@ class RatingCreationTest extends TestCase {
         $payload = [
             'score'    => 5, // Nota de 1 a 5
             'feedback' => 'Ideia fantástica!',
+            'room_uuid' => $idea->room->uuid, // Inclui o room_uuid para autorização
         ];
 
         $response = $this->postJson("/api/ideas/{$idea->id}/ratings", $payload);
@@ -53,19 +54,20 @@ class RatingCreationTest extends TestCase {
      */
     public function test_rating_score_must_be_an_integer_between_1_and_5(): void {
         $idea = Idea::factory()->create();
+        $roomUuid = $idea->room->uuid;
 
         // 1. Teste de valor acima do limite (6)
-        $this->postJson("/api/ideas/{$idea->id}/ratings", ['score' => 6])
+        $this->postJson("/api/ideas/{$idea->id}/ratings", ['score' => 6, 'room_uuid' => $roomUuid])
             ->assertStatus(422)
             ->assertJsonValidationErrors(['score']);
 
         // 2. Teste de valor abaixo do limite (0)
-        $this->postJson("/api/ideas/{$idea->id}/ratings", ['score' => 0])
+        $this->postJson("/api/ideas/{$idea->id}/ratings", ['score' => 0, 'room_uuid' => $roomUuid])
             ->assertStatus(422)
             ->assertJsonValidationErrors(['score']);
 
         // 3. Teste de número não inteiro (3.5)
-        $this->postJson("/api/ideas/{$idea->id}/ratings", ['score' => 3.5])
+        $this->postJson("/api/ideas/{$idea->id}/ratings", ['score' => 3.5, 'room_uuid' => $roomUuid])
             ->assertStatus(422)
             ->assertJsonValidationErrors(['score']);
     }
@@ -76,14 +78,17 @@ class RatingCreationTest extends TestCase {
     public function test_user_cannot_rate_same_idea_multiple_times(): void {
         $this->seed(\Database\Seeders\AuthorSeeder::class);
 
+        
         $idea = Idea::factory()->create();
+        $roomUuid = $idea->room->uuid;
+
 
         // Primeira avaliação
-        $this->postJson("/api/ideas/{$idea->id}/ratings", ['score' => 4])
+        $this->postJson("/api/ideas/{$idea->id}/ratings", ['score' => 4, 'room_uuid' => $roomUuid])
             ->assertStatus(201);
 
         // Segunda avaliação (deve falhar por conta da restrição de unicidade)
-        $this->postJson("/api/ideas/{$idea->id}/ratings", ['score' => 5])
+        $this->postJson("/api/ideas/{$idea->id}/ratings", ['score' => 5, 'room_uuid' => $roomUuid])
             ->assertStatus(422);
     }
 
@@ -97,12 +102,14 @@ class RatingCreationTest extends TestCase {
         $ideaA = Idea::factory()->create();
         $ideaB = Idea::factory()->create(['room_id' => $ideaA->room_id]);
 
+        $roomUuid = $ideaA->room->uuid;
+
         // Avalia a Ideia A
-        $this->postJson("/api/ideas/{$ideaA->id}/ratings", ['score' => 4])
+        $this->postJson("/api/ideas/{$ideaA->id}/ratings", ['score' => 4, 'room_uuid' => $roomUuid])
             ->assertStatus(201);
 
         // Avalia a Ideia B (deve ser permitido com sucesso)
-        $this->postJson("/api/ideas/{$ideaB->id}/ratings", ['score' => 5])
+        $this->postJson("/api/ideas/{$ideaB->id}/ratings", ['score' => 5, 'room_uuid' => $roomUuid])
             ->assertStatus(201);
 
         // Garante que ambos os registros foram persistidos no banco
@@ -121,16 +128,18 @@ class RatingCreationTest extends TestCase {
             'avg_score'     => 0.00,
         ]);
 
+        $roomUuid = $idea->room->uuid;
+
         // Primeiro Usuário avalia com Nota 5
         $userA = \App\Models\User::factory()->create();
         $this->actingAs($userA)
-            ->postJson("/api/ideas/{$idea->id}/ratings", ['score' => 5])
+            ->postJson("/api/ideas/{$idea->id}/ratings", ['score' => 5, 'room_uuid' => $roomUuid])
             ->assertStatus(201);
 
         // Segundo Usuário avalia com Nota 3
         $userB = \App\Models\User::factory()->create();
         $this->actingAs($userB)
-            ->postJson("/api/ideas/{$idea->id}/ratings", ['score' => 2])
+            ->postJson("/api/ideas/{$idea->id}/ratings", ['score' => 2, 'room_uuid' => $roomUuid])
             ->assertStatus(201);
 
         // Média esperada: (5 + 3) / 2 = 4.00
