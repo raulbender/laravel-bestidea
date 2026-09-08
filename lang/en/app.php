@@ -45,7 +45,28 @@ return [
         'anonymous' => 'Anonymous'
     ],
 
-    'title' => '- Anonymous Ideas & Bias-Free Decisions',
+    'home' => [
+        'hero' => [
+            'title' => 'Anonymous ideas. Bias-free decisions.',
+            'subtitle' => 'Create a room in seconds, invite your team via link, and gather honest feedback without hierarchy pressure.',
+            'cta' => 'Create New Room',
+        ],
+        'feed' => [
+            'title' => 'Public Rooms to Collaborate',
+            'subtitle' => 'Explore open topics and share your ideas or ratings anonymously.',
+            'empty' => 'No active public rooms at the moment. Be the first to create one!',
+            'load_more' => 'Load more rooms',
+            'loading' => 'Loading...',
+        ],
+        'card' => [
+            'ideas' => 'Ideas',
+            'comments' => 'Comments',
+            'people' => 'People',
+            'created_by' => 'Created by',
+            'enter' => 'Enter',
+        ],
+    ],
+
     'subtitle' => 'BestIdea. Bias-free decisions powered by AI.'
-    
+
 ];

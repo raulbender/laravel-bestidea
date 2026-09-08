@@ -39,13 +39,34 @@ return [
     'room' => [
         'loading' => 'Carregando sala...',
     ],
-    
+
     'idea' => [
         'write_as' => 'Escreva sua sugestão como',
         'anonymous' => 'Anônimo'
     ],
 
-    'title' => '- Ideias Anônimas & Decisões Sem Viés',
+    'home' => [
+        'hero' => [
+            'title' => 'Ideias anônimas. Decisões sem viés.',
+            'subtitle' => 'Crie uma sala em segundos, convide seu time por link e colete feedback sincero sem a pressão da hierarquia.',
+            'cta' => 'Criar Nova Sala',
+        ],
+        'feed' => [
+            'title' => 'Salas Públicas para Colaborar',
+            'subtitle' => 'Explore temas abertos e deixe suas ideias ou avaliações anonimamente.',
+            'empty' => 'Nenhuma sala pública ativa no momento. Seja o primeiro a criar!',
+            'load_more' => 'Carregar mais salas',
+            'loading' => 'Carregando...',
+        ],
+        'card' => [
+            'ideas' => 'Ideias',
+            'comments' => 'Comentários',
+            'people' => 'Pessoas',
+            'created_by' => 'Criado por',
+            'enter' => 'Entrar',
+        ],
+    ],
+
     'subtitle' => 'BestIdea. Decisões sem viés acionadas por IA.'
 
 ];
