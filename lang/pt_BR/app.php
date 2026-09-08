@@ -7,11 +7,10 @@ return [
     ],
     'share'  => 'Compartilhar',
     'copied' => 'Copiado!',
-    
+
     'ideas' => [
         'title'         => 'Mural de Ideias',
         'add_title'     => 'Adicionar uma ideia',
-        'link_copied'   => 'Link copiado!',
         'anonymous'     => 'Sua participação é 100% anônima nesta sala.',
         'placeholder'   => 'Descreva sua ideia sem preocupação com julgamentos...',
         'submit'        => 'Enviar Anônimamente',
@@ -37,6 +36,16 @@ return [
         'error'           => 'Ocorreu um erro na requisição.',
     ],
 
-    'idea' => ['write_as' => 'Escreva sua sugestão como'
+    'room' => [
+        'loading' => 'Carregando sala...',
     ],
+    
+    'idea' => [
+        'write_as' => 'Escreva sua sugestão como',
+        'anonymous' => 'Anônimo'
+    ],
+
+    'title' => '- Ideias Anônimas & Decisões Sem Viés',
+    'subtitle' => 'BestIdea. Decisões sem viés acionadas por IA.'
+
 ];

@@ -7,11 +7,10 @@ return [
     ],
     'share'  => 'Share',
     'copied' => 'Copied!',
-    
+
     'ideas' => [
         'title'         => 'Idea Board',
-        'add_title'     => 'Add an idea',        
-        'link_copied'   => 'Link copiado!',
+        'add_title'     => 'Add an idea',
         'anonymous'     => 'Your participation is 100% anonymous in this room.',
         'placeholder'   => 'Describe your idea without fear of judgment...',
         'submit'        => 'Submit Anonymously',
@@ -20,7 +19,6 @@ return [
         'created_by'    => 'Created by',
         'expires_in' => 'Expires in ',
         'no_expires' => 'No expiration',
-
     ],
 
     'sort' => [
@@ -38,6 +36,16 @@ return [
         'error'           => 'An error occurred during the request.',
     ],
 
-    'idea' => ['write_as' => 'Write your suggestion as'
+    'room' => [
+        'loading' => 'Loading room...',
     ],
+
+    'idea' => [
+        'write_as' => 'Write your suggestion as',
+        'anonymous' => 'Anonymous'
+    ],
+
+    'title' => '- Anonymous Ideas & Bias-Free Decisions',
+    'subtitle' => 'BestIdea. Bias-free decisions powered by AI.'
+    
 ];
