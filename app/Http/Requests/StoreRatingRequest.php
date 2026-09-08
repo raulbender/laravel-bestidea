@@ -2,20 +2,30 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
 use App\Models\Idea;
+use Illuminate\Foundation\Http\FormRequest;
 
 class StoreRatingRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        $user = $this->user();
         $ideaId = $this->route('id');
-        $idea = $ideaId ? Idea::with('room')->find($ideaId) : null;
-        $room = $idea?->room;
+        $idea = Idea::find($ideaId);
 
-        // Guest não pode enviar feedback em sala pública (mas pode apenas dar o score)
-        if ($room && $room->is_public && $user?->is_guest && $this->filled('feedback')) {
+        if (! $idea) {
+            return true;
+        }
+
+        $roomUuid = $this->input('room_uuid') ?? $this->query('room_uuid');
+
+        $hasValidKey = $roomUuid && $idea->room && $idea->room->uuid === $roomUuid;
+
+        if (! $hasValidKey) {
+            return false;
+        }
+
+        // Bloqueia feedback em texto feito por visitantes (guests) em salas públicas
+        if ($this->filled('feedback') && $idea->room->is_public && $this->user()?->is_guest) {
             return false;
         }
 
@@ -25,8 +35,9 @@ class StoreRatingRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'score'    => ['required', 'integer', 'min:1', 'max:5'],
-            'feedback' => ['nullable', 'string', 'max:1000'],
+            'score'     => ['required', 'integer', 'between:1,5'],
+            'feedback'  => ['nullable', 'string', 'max:1000'],
+            'room_uuid' => ['nullable', 'string', 'uuid'],
         ];
     }
 }
