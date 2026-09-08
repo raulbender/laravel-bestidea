@@ -51,15 +51,19 @@
         </div>
 
         {{-- CENTRO: Pergunta / Tema Principal --}}
+
+
         <div class="mb-6">
-            <h1 class="text-xl sm:text-2xl md:text-3xl font-extrabold text-white leading-snug break-words" x-text="roomData.description || 'Carregando sala...'"></h1>
+            <h1
+                class="text-xl sm:text-2xl md:text-3xl font-extrabold text-white leading-snug break-words"
+                x-text="roomData.description || '{{ __('app.room.loading') }}'"></h1>
         </div>
 
         {{-- RODAPÉ: Metadados Limpos --}}
         <div class="pt-4 border-t border-slate-800/80 flex items-center justify-between gap-4">
             <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 min-w-0">
                 <span class="text-xs font-medium text-slate-300 truncate">
-                    {{ __('app.ideas.created_by') }} <span class="text-amber-400 font-semibold" x-text="roomOwner || 'Anônimo'"></span>
+                    {{ __('app.ideas.created_by') }} <span class="text-amber-400 font-semibold" x-text="roomOwner || '{{ __('app.idea.anonymous') }}'"></span>
                 </span>
                 <span class="hidden sm:inline text-slate-700">•</span>
                 <span
@@ -267,7 +271,7 @@
 
             copyLink() {
                 navigator.clipboard.writeText(this.roomUrl);
-                this.showToast(this.i18n('app.ideas.link_copied'), '📋');
+                this.showToast(this.i18n('app.toasts.link_copied'), '📋');
             },
 
             setSort(type) {
