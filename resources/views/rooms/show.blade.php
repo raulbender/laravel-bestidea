@@ -28,13 +28,13 @@
                 <template x-if="roomData.is_public">
                     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shrink-0">
                         <span>🌐</span>
-                        <span>Sala Pública</span>
+                        <span>{{ __('app.privacy.public') }}</span>
                     </span>
                 </template>
                 <template x-if="!roomData.is_public">
                     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20 shrink-0">
                         <span>🔒</span>
-                        <span>Não Listada</span>
+                        <span>{{ __('app.privacy.unlisted') }}</span>
                     </span>
                 </template>
             </div>
@@ -46,7 +46,7 @@
                 <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
                 </svg>
-                <span>Compartilhar</span>
+                <span>{{ __('app.share') }}</span>
             </button>
         </div>
 
@@ -59,13 +59,13 @@
         <div class="pt-4 border-t border-slate-800/80 flex items-center justify-between gap-4">
             <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 min-w-0">
                 <span class="text-xs font-medium text-slate-300 truncate">
-                    Criado por <span class="text-amber-400 font-semibold" x-text="roomOwner || 'Anônimo'"></span>
+                    {{ __('app.ideas.created_by') }} <span class="text-amber-400 font-semibold" x-text="roomOwner || 'Anônimo'"></span>
                 </span>
                 <span class="hidden sm:inline text-slate-700">•</span>
                 <span
                     class="text-[11px] truncate"
                     :class="roomData.is_expiring_soon ? 'text-amber-400 font-semibold animate-pulse' : 'text-slate-500'"
-                    x-text="roomData.expires_at_human ? 'Expira em ' + roomData.expires_at_human : 'Sem expiração'"></span>
+                    x-text="roomData.expires_at_human ? '{{ __('app.ideas.expires_in') }} ' + roomData.expires_at_human : '{{ __('app.ideas.no_expires') }}'"></span>
             </div>
         </div>
     </header>
@@ -85,8 +85,8 @@
                 </template>
 
                 <div>
-                    <h3 class="text-sm font-bold text-white">Adicionar uma ideia</h3>
-                    <p class="text-xs text-slate-400">Sua participação é 100% anônima nesta sala.</p>
+                    <h3 class="text-sm font-bold text-white">{{ __('app.ideas.add_title') }}</h3>
+                    <p class="text-xs text-slate-400">{{ __('app.ideas.anonymous') }}</p>
                 </div>
             </div>
 
@@ -96,7 +96,7 @@
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path>
                 </svg>
-                <span>Nova Ideia</span>
+                <span>{{ __('app.ideas.submit') }}</span>
             </button>
         </div>
 
@@ -104,7 +104,7 @@
         <div x-show="showForm" x-cloak class="space-y-3">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
-                    <span class="text-xs font-bold text-slate-300">Escreva sua sugestão como</span>
+                    <span class="text-xs font-bold text-slate-300">{{ __('app.idea.write_as') }}</span>
                     <template x-if="myPersona">
                         <span class="text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-md">
                             <span x-text="myPersona.avatar"></span> <span x-text="myPersona.name"></span>
@@ -124,14 +124,14 @@
 
             <div class="flex items-center justify-end gap-3 pt-1">
                 <button @click="showForm = false" class="px-3 py-1.5 text-xs text-slate-400 hover:text-white transition">
-                    Cancelar
+                    {{ __('app.cancel') }}
                 </button>
                 <button
                     @click="submitIdea()"
                     :disabled="submitting || newIdeaContent.trim().length < 5"
                     class="px-5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg text-xs transition disabled:opacity-50">
-                    <span x-show="!submitting">Enviar Anônimamente</span>
-                    <span x-show="submitting" x-cloak>Enviando...</span>
+                    <span x-show="!submitting">{{ __('app.ideas.submit') }}</span>
+                    <span x-show="submitting" x-cloak>{{ __('app.ideas.submitting') }}</span>
                 </button>
             </div>
         </div>
@@ -140,7 +140,7 @@
     {{-- CABEÇALHO DO MURAL & FILTROS --}}
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
         <h2 class="text-base font-bold text-white flex items-center gap-2">
-            <span>Mural de Ideias</span>
+            <span>{{ __('app.ideas.title') }}</span>
             <span class="text-xs font-mono bg-slate-800 text-slate-300 px-2.5 py-0.5 rounded-full" x-text="ideas.length">0</span>
         </h2>
 
@@ -150,21 +150,21 @@
                 @click="setSort('recent')"
                 :class="sortBy === 'recent' && !filterMine ? 'bg-amber-500 text-slate-950 font-bold' : 'text-slate-400 hover:text-white'"
                 class="px-3 py-1.5 rounded-lg transition whitespace-nowrap shrink-0">
-                Mais Recentes
+                {{ __('app.sort.recent') }}
             </button>
 
             <button
                 @click="setSort('hot')"
                 :class="sortBy === 'hot' && !filterMine ? 'bg-amber-500 text-slate-950 font-bold' : 'text-slate-400 hover:text-white'"
                 class="px-3 py-1.5 rounded-lg transition whitespace-nowrap shrink-0">
-                🔥 Em Alta
+                {{ __('app.sort.hot') }}
             </button>
 
             <button
                 @click="setSort('top_rated')"
                 :class="sortBy === 'top_rated' && !filterMine ? 'bg-amber-500 text-slate-950 font-bold' : 'text-slate-400 hover:text-white'"
                 class="px-3 py-1.5 rounded-lg transition whitespace-nowrap shrink-0">
-                ⭐ Mais Votadas
+                {{ __('app.sort.top_rated') }}
             </button>
 
             @auth
@@ -172,7 +172,7 @@
                 @click="toggleMine()"
                 :class="filterMine ? 'bg-amber-500 text-slate-950 font-bold' : 'text-slate-400 hover:text-white'"
                 class="px-3 py-1.5 rounded-lg transition whitespace-nowrap shrink-0 border-l border-slate-800 ml-1">
-                Minhas Ideias
+                {{ __('app.sort.mine') }}
             </button>
             @endauth
         </div>
@@ -189,7 +189,7 @@
 
         <template x-if="!loading && ideas.length === 0">
             <div class="col-span-full text-center py-12 bg-slate-900/40 rounded-2xl border border-dashed border-slate-800">
-                <p class="text-xs text-slate-500">Nenhuma ideia encontrada para esta sala.</p>
+                <p class="text-xs text-slate-500">{{ __('app.ideas.empty') }}</p>
             </div>
         </template>
 
@@ -201,7 +201,7 @@
 
                 {{-- Rodapé do Card da Ideia --}}
                 <div class="flex items-center justify-between pt-3 border-t border-slate-800/60 text-xs gap-2 min-w-0">
-                    <span class="text-slate-500 truncate" x-text="idea.created_at_human || 'Recente'"></span>
+                    <span class="text-slate-500 truncate" x-text="idea.created_at_human || "></span>
 
                     <div class="flex items-center gap-2 shrink-0">
                         <span class="flex items-center gap-1 text-slate-400 bg-slate-950/60 border border-slate-800 px-2 py-1 rounded-lg text-xs">
@@ -267,7 +267,7 @@
 
             copyLink() {
                 navigator.clipboard.writeText(this.roomUrl);
-                this.showToast('Link copiado!', '📋');
+                this.showToast(this.i18n('app.ideas.link_copied'), '📋');
             },
 
             setSort(type) {
@@ -288,12 +288,12 @@
 
                     const payload = json.data || json;
                     this.roomData = payload.room || payload;
-                    this.roomOwner = payload.owner_name || 'Anônimo';
+                    this.roomOwner = payload.owner_name || this.i18n('app.ideas.anonymous');
                     this.myPersona = payload.my_persona || null;
 
                     this.roomId = this.roomData.id || this.roomId;
                 } catch (error) {
-                    console.error('Erro ao buscar dados da sala:', error);
+                    console.error(this.i18n('app.toasts.error'), error);
                 }
             },
 
@@ -314,7 +314,7 @@
                     const json = await response.json();
                     this.ideas = json.data || json;
                 } catch (error) {
-                    console.error('Erro ao buscar ideias:', error);
+                    console.error(this.i18n('app.toasts.error'), error);
                     this.ideas = [];
                 } finally {
                     this.loading = false;
@@ -342,11 +342,11 @@
                     if (response.ok) {
                         this.newIdeaContent = '';
                         this.showForm = false;
-                        this.showToast('Ideia publicada!', '🎉');
+                        this.showToast(this.i18n('app.toasts.idea_published'), '🎉');
                         this.fetchIdeas();
                     }
                 } catch (error) {
-                    this.showToast('Erro ao enviar ideia.', '❌');
+                    this.showToast(this.i18n('app.toasts.error'), '❌');
                 } finally {
                     this.submitting = false;
                 }
@@ -367,10 +367,10 @@
                             room_uuid: this.uuid
                         })
                     });
-                    this.showToast('Voto registrado!', '⭐');
+                    this.showToast(this.i18n('app.toasts.vote_registered'), '⭐');
                     this.fetchIdeas();
                 } catch (error) {
-                    console.error('Erro ao votar:', error);
+                    console.error(this.i18n('app.toasts.error'), error);
                 }
             }
         }
