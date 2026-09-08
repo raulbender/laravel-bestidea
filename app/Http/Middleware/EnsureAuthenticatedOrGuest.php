@@ -19,7 +19,8 @@ class EnsureAuthenticatedOrGuest
         }
 
         // 2. Check if a guest UUID exists in cookies
-        $guestId = $request->cookie('guest_user_id');$guestUser = $guestId ? User::where('id', $guestId)->where('is_guest', true)->first() : null;
+        $guestId = $request->cookie('guest_user_id');
+        $guestUser = $guestId ? User::where('id', $guestId)->where('is_guest', true)->first() : null;
 
         // 3. Create a new guest if no valid guest user was found
         if (!$guestUser) {$guestUser = User::create([
