@@ -29,11 +29,8 @@ class IdeaController extends Controller
 
     public function index(GetRoomIdeasRequest $request) 
     {
-        $query = Idea::with('author');
-
-        if ($request->filled('room_id')) {
-            $query->where('room_id', $request->query('room_id'));
-        }
+        $room = $request->getRoom();
+        $query = $room->ideas()->with('author');
 
         if ($request->query('filter') === 'mine') {
             $query->where('user_id', $request->user()->id);
