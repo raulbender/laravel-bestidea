@@ -81,4 +81,31 @@ class IdeaSecurityTest extends TestCase {
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['room_uuid']);
     }
+
+    public function test_does_not_leak_ideas_from_other_rooms(): void {
+        $user = User::factory()->create();
+
+        $roomA = Room::factory()->create();
+        $roomB = Room::factory()->create();
+
+        // Ideia pertencente à Sala A
+        $ideaA = Idea::factory()->create(['room_id' => $roomA->id, 'content' => 'Ideia da Sala A']);
+
+        // Ideia pertencente à Sala B
+        $ideaB = Idea::factory()->create(['room_id' => $roomB->id, 'content' => 'Ideia da Sala B']);
+
+        // Requisita explicitamente a Sala A
+        $response = $this->actingAs($user)
+            ->getJson("/api/ideas?room_uuid={$roomA->uuid}");
+
+
+        $response->assertStatus(200);
+
+        // Deve retornar APENAS 1 ideia (a da Sala A)
+        $this->assertCount(1, $response->json('data'));
+        $this->assertEquals($ideaA->id, $response->json('data.0.id'));
+
+        // Garante que a ideia da Sala B não vazou na resposta
+        $response->assertJsonMissing(['id' => $ideaB->id]);
+    }
 }
