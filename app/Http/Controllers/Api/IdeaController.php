@@ -6,10 +6,10 @@ use App\Actions\Ideas\CreateIdeaAction;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\IdeaResource;
 use App\Http\Requests\StoreIdeaRequest;
+use App\Http\Requests\Api\GetRoomIdeasRequest;
 use App\Models\Idea;
 use App\Models\Room;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class IdeaController extends Controller 
@@ -27,7 +27,7 @@ class IdeaController extends Controller
             ->setStatusCode(201);
     }
 
-    public function index(Request $request) 
+    public function index(GetRoomIdeasRequest $request) 
     {
         $query = Idea::with('author');
 
