@@ -11,11 +11,15 @@ return [
     'ideas' => [
         'title'         => 'Mural de Ideias',
         'add_title'     => 'Adicionar uma ideia',
+        'link_copied'   => 'Link copiado!',
         'anonymous'     => 'Sua participação é 100% anônima nesta sala.',
         'placeholder'   => 'Descreva sua ideia sem preocupação com julgamentos...',
         'submit'        => 'Enviar Anônimamente',
         'submitting'    => 'Enviando...',
         'empty'         => 'Nenhuma ideia encontrada para esta sala.',
+        'created_by'    => 'Criado por',
+        'expires_in' => 'Expira em ',
+        'no_expires' => 'Sem expiração',
     ],
 
     'sort' => [
@@ -31,5 +35,8 @@ return [
         'idea_published'  => 'Ideia publicada!',
         'vote_registered' => 'Voto registrado!',
         'error'           => 'Ocorreu um erro na requisição.',
+    ],
+
+    'idea' => ['write_as' => 'Escreva sua sugestão como'
     ],
 ];
