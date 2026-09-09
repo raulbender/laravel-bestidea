@@ -13,7 +13,7 @@ return [
         'add_title'     => 'Add an idea',
         'anonymous'     => 'Your participation is 100% anonymous in this room.',
         'placeholder'   => 'Describe your idea without fear of judgment...',
-        'submit'        => 'Submit Anonymously',
+        'submit'        => 'Contribute',
         'submitting'    => 'Submitting...',
         'empty'         => 'No ideas found for this room.',
         'created_by'    => 'Created by',

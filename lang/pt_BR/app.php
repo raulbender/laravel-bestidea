@@ -13,7 +13,7 @@ return [
         'add_title'     => 'Adicionar uma ideia',
         'anonymous'     => 'Sua participação é 100% anônima nesta sala.',
         'placeholder'   => 'Descreva sua ideia sem preocupação com julgamentos...',
-        'submit'        => 'Enviar Anônimamente',
+        'submit'        => 'Contribuir',
         'submitting'    => 'Enviando...',
         'empty'         => 'Nenhuma ideia encontrada para esta sala.',
         'created_by'    => 'Criado por',
