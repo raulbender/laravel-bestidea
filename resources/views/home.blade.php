@@ -48,74 +48,72 @@
         {{-- Cards Grid --}}
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" x-show="!loading || rooms.length > 0">
             <template x-for="item in rooms" :key="item.id || item.uuid">
-                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm hover:border-slate-700 transition duration-200 flex flex-col justify-between">
+<div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm hover:border-slate-700 transition duration-200 flex flex-col justify-between">
 
-                    <div>
-                        {{-- Topo do Card: Badge de Expiração --}}
-                        <div class="mb-3">
-                            {{-- Badges de Expiração --}}
-                            {{-- 1. Sala Permanente (sem data de expiração) --}}
-                            <template x-if="!item.expires_at">
-                                <x-badge variant="cyan" icon="♾️">
-                                    {{ __('app.ideas.no_expires') }}
-                                </x-badge>
-                            </template>
+    <div>
+        {{-- Topo: Título--}}
+        <div class="flex items-start justify-between gap-3 mb-3">
+            <h3 class="text-lg font-bold text-white line-clamp-2" x-text="item.description"></h3>                        
+        </div>
 
-                            {{-- 2. Sala Prestes a Expirar (Temporária + Expira em Breve) --}}
-                            <template x-if="item.expires_at && item.is_expiring_soon">
-                                <x-badge variant="amber" icon="⏳" :pulse="true">
-                                    <span x-text="'{{ __('app.ideas.expires_in') }} ' + item.expires_at_human"></span>
-                                </x-badge>
-                            </template>
+        {{-- Métricas --}}
+        <div class="grid grid-cols-3 gap-2 text-center text-xs text-slate-400 bg-slate-950/50 px-3 py-2 rounded-xl border border-slate-800/60 mb-4">
+            <div class="flex items-center justify-center gap-1 min-w-0">
+                <span>💡</span>
+                <strong class="text-slate-200" x-text="item.ideas_count || 0"></strong>
+                <span class="hidden sm:inline text-slate-400">{{ __('app.home.card.ideas') }}</span>
+            </div>
 
-                            {{-- 3. Sala Temporária Normal (Expira, mas não em breve) --}}
-                            <template x-if="item.expires_at && !item.is_expiring_soon">
-                                <x-badge variant="slate" icon="⏳">
-                                    <span x-text="'{{ __('app.ideas.expires_in') }} ' + item.expires_at_human"></span>
-                                </x-badge>
-                            </template>
-                        </div>
-                        <h3 class="text-lg font-bold text-white line-clamp-2 mb-4" x-text="item.description"></h3>
+            <div class="flex items-center justify-center gap-1 border-x border-slate-800/80 px-1 min-w-0">
+                <span>💬</span>
+                <strong class="text-slate-200" x-text="item.comments_count || 0"></strong>
+                <span class="hidden sm:inline text-slate-400">{{ __('app.home.card.comments') }}</span>
+            </div>
 
-                        {{-- Badges de Métricas --}}
-                        <div class="grid grid-cols-3 gap-2 text-center text-xs text-slate-400 bg-slate-950/50 px-3 py-2 rounded-xl border border-slate-800/60 mb-4">
+            <div class="flex items-center justify-center gap-1 min-w-0">
+                <span>👥</span>
+                <strong class="text-slate-200" x-text="item.participants_count || 0"></strong>
+                <span class="hidden sm:inline text-slate-400">{{ __('app.home.card.people') }}</span>
+            </div>
+        </div>
 
-                            <div class="flex items-center justify-center gap-1 min-w-0">
-                                <span>💡</span>
-                                <strong class="text-slate-200" x-text="item.ideas_count || 0"></strong>
-                                <span class="hidden sm:inline text-slate-400">{{ __('app.home.card.ideas') }}</span>
-                            </div>
+        {{-- Badges de Expiração (Posicionados ACIMA do rodapé) --}}
+        <div class="mb-4">
+            <template x-if="!item.expires_at">
+                <x-badge variant="cyan" icon="♾️">
+                    {{ __('app.ideas.no_expires') }}
+                </x-badge>
+            </template>
 
-                            <div class="flex items-center justify-center gap-1 border-x border-slate-800/80 px-1 min-w-0">
-                                <span>💬</span>
-                                <strong class="text-slate-200" x-text="item.comments_count || 0"></strong>
-                                <span class="hidden sm:inline text-slate-400">{{ __('app.home.card.comments') }}</span>
-                            </div>
+            <template x-if="item.expires_at && item.is_expiring_soon">
+                <x-badge variant="amber" icon="⏳" :pulse="true">
+                    <span x-text="'{{ __('app.ideas.expires_in') }} ' + item.expires_at_human"></span>
+                </x-badge>
+            </template>
 
-                            <div class="flex items-center justify-center gap-1 min-w-0">
-                                <span>👥</span>
-                                <strong class="text-slate-200" x-text="item.participants_count || 0"></strong>
-                                <span class="hidden sm:inline text-slate-400">{{ __('app.home.card.people') }}</span>
-                            </div>
+            <template x-if="item.expires_at && !item.is_expiring_soon">
+                <x-badge variant="slate" icon="⏳">
+                    <span x-text="'{{ __('app.ideas.expires_in') }} ' + item.expires_at_human"></span>
+                </x-badge>
+            </template>
+        </div>
+    </div>
 
-                        </div>
-                    </div>
+    {{-- Rodapé do Card (Criado por + Entrar) --}}
+    <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between gap-2">
+        <div class="flex flex-col min-w-0">
+            <span class="text-xs font-medium text-slate-300 truncate">
+                {{ __('app.home.card.created_by') }} <span class="text-amber-400 font-semibold" x-text="item.owner_name || 'Bill'"></span>
+            </span>
+        </div>
 
-                    {{-- Rodapé do Card --}}
-                    <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between gap-2">
-                        <div class="flex flex-col min-w-0">
-                            <span class="text-xs font-medium text-slate-300 truncate">
-                                {{ __('app.home.card.created_by') }} <span class="text-amber-400 font-semibold" x-text="item.owner_name || 'Bill'"></span>
-                            </span>
-                        </div>
+        <a :href="'/rooms/' + item.uuid"
+            class="shrink-0 px-3.5 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 text-xs font-bold rounded-lg border border-amber-500/20 transition duration-150 inline-flex items-center gap-1">
+            {{ __('app.home.card.enter') }} &rarr;
+        </a>
+    </div>
 
-                        <a :href="'/rooms/' + item.uuid"
-                            class="shrink-0 px-3.5 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 text-xs font-bold rounded-lg border border-amber-500/20 transition duration-150 inline-flex items-center gap-1">
-                            {{ __('app.home.card.enter') }} &rarr;
-                        </a>
-                    </div>
-
-                </div>
+</div>
             </template>
         </div>
 
