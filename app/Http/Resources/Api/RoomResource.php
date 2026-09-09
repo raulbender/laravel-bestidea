@@ -31,9 +31,13 @@ class RoomResource extends JsonResource {
                 'title'       => $this->title,
                 'description' => $this->description,
                 'is_public'   => $this->is_public,
-                'expires_at'  => $this->expires_at,                
+                'expires_at'  => $this->expires_at,
                 // Diff relativo absoluto (ex: "12 horas", "2 dias")
                 'expires_at_human'   => $this->expires_at?->diffForHumans(['syntax' => CarbonInterface::DIFF_ABSOLUTE]),
+                // Verifica se expira no futuro e se faltam menos de 24 horas (ajuste o tempo conforme necessário)
+                'is_expiring_soon' => $this->expires_at
+                    ? $this->expires_at->isFuture() && $this->expires_at->diffInHours(now()) <= 24
+                    : false,
                 'ideas_count'        => $this->ideas_count ?? $this->ideas()->count(),
                 'comments_count'     => $this->comments_count ?? ($this->relationLoaded('comments') ? $this->comments->count() : $this->comments()->count()),
                 'participants_count' => $this->room_users_count ?? $this->roomUsers()->count(),
@@ -41,7 +45,7 @@ class RoomResource extends JsonResource {
                 'created_at_human'   => $this->created_at?->diffForHumans(),
             ],
             'owner_name' => $this->user?->name ?? __('app.idea.anonymous'),
-            
+
             'is_owner' => $user ? $this->user_id === $user->id : false,
 
             'my_persona' => $roomUser && $roomUser->author ? [
