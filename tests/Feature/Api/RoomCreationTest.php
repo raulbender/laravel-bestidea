@@ -248,4 +248,39 @@ class RoomCreationTest extends TestCase {
         $resource = (new RoomResource($roomExpired))->toArray($request);
         $this->assertFalse($resource['is_expiring_soon']);
     }
+
+    public function test_room_is_expiring_soon_logic_via_api(): void {
+        $this->seed(\Database\Seeders\AuthorSeeder::class);
+        // Cenário 1: Expira em menos de 24h (Deve ser true)
+        $roomExpiring = Room::factory()->create([
+            'is_public'  => true,
+            'expires_at' => now()->addHours(23),
+        ]);
+
+        // Cenário 2: Expira em mais de 24h (Deve ser false)
+        $roomSafe = Room::factory()->create([
+            'is_public'  => true,
+            'expires_at' => now()->addHours(25),
+        ]);
+
+        // Testando endpoint individual (/api/rooms/{uuid})
+        $this->getJson("/api/rooms/{$roomExpiring->uuid}")
+            ->assertStatus(200)
+            ->assertJsonPath('data.is_expiring_soon', true);
+
+        $this->getJson("/api/rooms/{$roomSafe->uuid}")
+            ->assertStatus(200)
+            ->assertJsonPath('data.is_expiring_soon', false);
+
+        // Testando endpoint do feed público (/api/rooms/public)
+        $response = $this->getJson('/api/rooms/public')->assertStatus(200);
+
+        $items = collect($response->json('data'));
+
+        $expiringItem = $items->firstWhere('uuid', $roomExpiring->uuid);
+        $safeItem     = $items->firstWhere('uuid', $roomSafe->uuid);
+
+        $this->assertTrue($expiringItem['is_expiring_soon']);
+        $this->assertFalse($safeItem['is_expiring_soon']);
+    }
 }
