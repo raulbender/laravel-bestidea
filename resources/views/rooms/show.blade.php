@@ -18,96 +18,75 @@
         <span x-text="toast.message"></span>
     </div>
 
-    {{-- CARD PRINCIPAL DA SALA --}}
-    <header class="bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-7 shadow-xl flex flex-col justify-between">
+  {{-- HUB PRINCIPAL DA SALA & ÁREA DE CONTRIBUIÇÃO --}}
+<div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-7 shadow-xl space-y-6">
 
-        {{-- TOPO: Badges de Estado (Privacidade + Expiração) + Botão Compartilhar --}}
-        <div class="flex items-center justify-between gap-4 mb-4">
+    {{-- 1. TOPO: Título / Tema Principal + Botão Compartilhar --}}
+    <div class="flex items-start justify-between gap-4">
+        <h1
+            class="text-xl sm:text-2xl md:text-3xl font-extrabold text-white leading-snug break-words"
+            x-text="roomData.description || '{{ __('app.room.loading') }}'"></h1>
 
-            {{-- Grupo de Badges --}}
-            <div class="flex items-center gap-2 flex-wrap">
+        <button
+            @click="copyLink()"
+            class="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold rounded-xl text-xs flex items-center gap-2 transition shrink-0 mt-1">
+            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
+            </svg>
+            <span class="hidden sm:inline">{{ __('app.share') }}</span>
+        </button>
+    </div>
 
-                {{-- Badges de Expiração --}}
-                {{-- 1. Sala Permanente (sem data de expiração) --}}
-                <template x-if="!roomData.expires_at">
-                    <x-badge variant="cyan" icon="♾️">
-                        {{ __('app.ideas.no_expires') }}
-                    </x-badge>
-                </template>
+    {{-- 2. MEIO: Badges de Estado & Criador --}}
+    <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-2 flex-wrap">
+            {{-- Badges de Expiração --}}
+            <template x-if="!roomData.expires_at">
+                <x-badge variant="cyan" icon="♾️">
+                    {{ __('app.ideas.no_expires') }}
+                </x-badge>
+            </template>
 
-                {{-- 2. Sala Prestes a Expirar (Temporária + Expira em Breve) --}}
-                <template x-if="roomData.expires_at && roomData.is_expiring_soon">
-                    <x-badge variant="amber" icon="⏳" :pulse="true">
-                        <span x-text="'{{ __('app.ideas.expires_in') }} ' + roomData.expires_at_human"></span>
-                    </x-badge>
-                </template>
+            <template x-if="roomData.expires_at && roomData.is_expiring_soon">
+                <x-badge variant="amber" icon="⏳" :pulse="true">
+                    <span x-text="'{{ __('app.ideas.expires_in') }} ' + roomData.expires_at_human"></span>
+                </x-badge>
+            </template>
 
-                {{-- 3. Sala Temporária Normal (Expira, mas não em breve) --}}
-                <template x-if="roomData.expires_at && !roomData.is_expiring_soon">
-                    <x-badge variant="slate" icon="⏳">
-                        <span x-text="'{{ __('app.ideas.expires_in') }} ' + roomData.expires_at_human"></span>
-                    </x-badge>
-                </template>
+            <template x-if="roomData.expires_at && !roomData.is_expiring_soon">
+                <x-badge variant="slate" icon="⏳">
+                    <span x-text="'{{ __('app.ideas.expires_in') }} ' + roomData.expires_at_human"></span>
+                </x-badge>
+            </template>
 
-                {{-- Badges de Privacidade --}}
-                <template x-if="roomData.is_public">
-                    <x-badge variant="emerald" icon="🌐">
-                        {{ __('app.privacy.public') }}
-                    </x-badge>
-                </template>
+            {{-- Badges de Privacidade --}}
+            <template x-if="roomData.is_public">
+                <x-badge variant="emerald" icon="🌐">
+                    {{ __('app.privacy.public') }}
+                </x-badge>
+            </template>
 
-                <template x-if="!roomData.is_public">
-                    <x-badge variant="amber" icon="🔒">
-                        {{ __('app.privacy.unlisted') }}
-                    </x-badge>
-                </template>
-
-            </div>
-
-            {{-- Botão Compartilhar --}}
-            <button
-                @click="copyLink()"
-                class="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold rounded-xl text-xs flex items-center gap-2 transition shrink-0">
-                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
-                </svg>
-                <span>{{ __('app.share') }}</span>
-            </button>
+            <template x-if="!roomData.is_public">
+                <x-badge variant="amber" icon="🔒">
+                    {{ __('app.privacy.unlisted') }}
+                </x-badge>
+            </template>
         </div>
 
-        {{-- CENTRO: Pergunta / Tema Principal --}}
-        <div class="mb-6">
-            <h1
-                class="text-xl sm:text-2xl md:text-3xl font-extrabold text-white leading-snug break-words"
-                x-text="roomData.description || '{{ __('app.room.loading') }}'"></h1>
-        </div>
+        <span class="text-xs font-medium text-slate-400 truncate">
+            {{ __('app.ideas.created_by') }} <span class="text-amber-400 font-semibold" x-text="roomOwner || '{{ __('app.idea.anonymous') }}'"></span>
+        </span>
+    </div>
 
-        {{-- RODAPÉ: Metadados Limpos --}}
-        <div class="pt-4 border-t border-slate-800/80 flex items-center justify-between gap-4">
-            <div class="flex items-center gap-1 min-w-0">
-                <span class="text-xs font-medium text-slate-300 truncate">
-                    {{ __('app.ideas.created_by') }} <span class="text-amber-400 font-semibold" x-text="roomOwner || '{{ __('app.idea.anonymous') }}'"></span>
-                </span>
-            </div>
-        </div>
-    </header>
+    {{-- 3. BASE: Divisor Suave + Área de Ação/Formulário --}}
+    <div class="pt-5 border-t border-slate-800/80">
 
-    {{-- ÁREA DE CONTRIBUIÇÃO --}}
-    <section class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg">
-
-        {{-- Chamada Principal --}}
-        <div x-show="!showForm" class="flex items-center justify-between gap-4">
-            <div class="flex items-center gap-3">
-                {{-- Persona / Identidade Anônima no contexto de Ação --}}
-                <template x-if="myPersona">
-                    <div class="flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs px-3 py-1.5 rounded-xl font-semibold shrink-0">
-                        <span x-text="myPersona.avatar"></span>
-                        <span class="hidden sm:inline" x-text="myPersona.name"></span>
-                    </div>
-                </template>
-
-                <div>
-                    <h3 class="text-sm font-bold text-white">{{ __('app.ideas.add_title') }}</h3>
+        {{-- Chamada Fechada --}}
+        <div x-show="!showForm" class="flex items-center justify-end gap-4">
+            <div class="flex items-center gap-3 min-w-0">
+                
+                <div class="min-w-0 ">
+                    <h3 class="hidden sm:inline text-sm font-bold text-white truncate">{{ __('app.ideas.add_title') }}</h3>
                     <p class="text-xs text-slate-400">{{ __('app.ideas.anonymous') }}</p>
                 </div>
             </div>
@@ -133,7 +112,7 @@
                         </span>
                     </template>
                 </div>
-                <span class="text-xs text-slate-500" x-text="`${newIdeaContent.length}/1000`"></span>
+
             </div>
 
             <textarea
@@ -142,11 +121,12 @@
                 maxlength="1000"
                 rows="3"
                 class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3.5 text-white placeholder-slate-500 focus:ring-1 focus:ring-amber-500 focus:border-amber-500 focus:outline-none transition resize-none text-sm"
-                placeholder="Descreva sua ideia sem preocupação com julgamentos..."></textarea>
-
+                placeholder="{{ __('app.ideas.placeholder') }}"></textarea>
+                <div class="flex justify-end"><span class="text-xs text-slate-500" x-text="`${newIdeaContent.length}/1000`"></span></div>
+                
             <div class="flex items-center justify-end gap-3 pt-1">
                 <button @click="showForm = false" class="px-3 py-1.5 text-xs text-slate-400 hover:text-white transition">
-                    {{ __('app.cancel') }}
+                    {{ __('Cancel') }}
                 </button>
                 <button
                     @click="submitIdea()"
@@ -157,7 +137,9 @@
                 </button>
             </div>
         </div>
-    </section>
+
+    </div>
+</div>
 
     {{-- CABEÇALHO DO MURAL & FILTROS --}}
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
