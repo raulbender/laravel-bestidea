@@ -11,7 +11,7 @@ return [
     'ideas' => [
         'title'         => 'Idea Board',
         'add_title'     => 'Add an idea',
-        'anonymous'     => 'Your participation is 100% anonymous in this room.',
+        'anonymous'     => 'Your participation is 100% anonymous.',
         'placeholder'   => 'Describe your idea without fear of judgment...',
         'submit'        => 'Contribute',
         'submitting'    => 'Submitting...',
@@ -38,6 +38,7 @@ return [
 
     'room' => [
         'loading' => 'Loading room...',
+        'placeholder' => 'Describe your idea without fear of judgment...'
     ],
 
     'idea' => [

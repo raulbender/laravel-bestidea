@@ -11,7 +11,7 @@ return [
     'ideas' => [
         'title'         => 'Mural de Ideias',
         'add_title'     => 'Adicionar uma ideia',
-        'anonymous'     => 'Sua participação é 100% anônima nesta sala.',
+        'anonymous'     => 'Sua participação é 100% anônima.',
         'placeholder'   => 'Descreva sua ideia sem preocupação com julgamentos...',
         'submit'        => 'Contribuir',
         'submitting'    => 'Enviando...',
@@ -38,6 +38,7 @@ return [
 
     'room' => [
         'loading' => 'Carregando sala...',
+        'placeholder' => 'Descreva sua ideia sem preocupação com julgamentos...'
     ],
 
     'idea' => [
