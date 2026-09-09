@@ -54,28 +54,27 @@
                         <h3 class="text-lg font-bold text-white line-clamp-2 mb-4" x-text="getRoom(item).description"></h3>
 
                         {{-- Badges de Métricas --}}
-                        {{-- Subtitua a div de métricas por esta estrutura em Grid --}}
-<div class="grid grid-cols-3 gap-2 text-center text-xs text-slate-400 bg-slate-950/50 px-3 py-2 rounded-xl border border-slate-800/60 mb-4">
-    
-    <div class="flex items-center justify-center gap-1 min-w-0">
-        <span>💡</span>
-        <strong class="text-slate-200" x-text="getRoom(item).ideas_count || 0"></strong>
-        <span class="hidden sm:inline text-slate-400">{{ __('app.home.card.ideas') }}</span>
-    </div>
+                        <div class="grid grid-cols-3 gap-2 text-center text-xs text-slate-400 bg-slate-950/50 px-3 py-2 rounded-xl border border-slate-800/60 mb-4">
 
-    <div class="flex items-center justify-center gap-1 border-x border-slate-800/80 px-1 min-w-0">
-        <span>💬</span>
-        <strong class="text-slate-200" x-text="getRoom(item).comments_count || 0"></strong>
-        <span class="hidden sm:inline text-slate-400">{{ __('app.home.card.comments') }}</span>
-    </div>
+                            <div class="flex items-center justify-center gap-1 min-w-0">
+                                <span>💡</span>
+                                <strong class="text-slate-200" x-text="getRoom(item).ideas_count || 0"></strong>
+                                <span class="hidden sm:inline text-slate-400">{{ __('app.home.card.ideas') }}</span>
+                            </div>
 
-    <div class="flex items-center justify-center gap-1 min-w-0">
-        <span>👥</span>
-        <strong class="text-slate-200" x-text="getRoom(item).participants_count || 0"></strong>
-        <span class="hidden sm:inline text-slate-400">{{ __('app.home.card.people') }}</span>
-    </div>
+                            <div class="flex items-center justify-center gap-1 border-x border-slate-800/80 px-1 min-w-0">
+                                <span>💬</span>
+                                <strong class="text-slate-200" x-text="getRoom(item).comments_count || 0"></strong>
+                                <span class="hidden sm:inline text-slate-400">{{ __('app.home.card.comments') }}</span>
+                            </div>
 
-</div>
+                            <div class="flex items-center justify-center gap-1 min-w-0">
+                                <span>👥</span>
+                                <strong class="text-slate-200" x-text="getRoom(item).participants_count || 0"></strong>
+                                <span class="hidden sm:inline text-slate-400">{{ __('app.home.card.people') }}</span>
+                            </div>
+
+                        </div>
                     </div>
 
                     {{-- Rodapé do Card --}}
