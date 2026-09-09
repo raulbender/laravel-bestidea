@@ -35,14 +35,14 @@ class RoomCreationTest extends TestCase {
         // 3. Assert: Verify response and database persistence
         $response->assertStatus(201)
             ->assertJsonStructure([
-                'data' => [
-                    'room' => [
+                'data' => [                    
                         'id',
                         'uuid',
                         'description',
                         'expires_at',
                         'created_at',
-                    ],
+                        'created_at_human',
+                        'owner_name',                    
                 ],
             ]);
 
@@ -101,11 +101,9 @@ class RoomCreationTest extends TestCase {
         // 3. Assert: Verify status code and payload structure
         $response->assertStatus(200)
             ->assertJson([
-                'data' => [
-                    'room' => [
+                'data' => [                    
                         'uuid'        => $room->uuid,
-                        'description' => 'Brainstorming Session',
-                    ],
+                        'description' => 'Brainstorming Session',                    
                 ],
             ]);
     }
@@ -183,8 +181,7 @@ class RoomCreationTest extends TestCase {
         // 3. Assert: Verifica se a persona foi sorteada e anexada ao contrato JSON
         $response->assertStatus(200)
             ->assertJsonStructure([
-                'data' => [
-                    'room',
+                'data' => [                    
                     'my_persona' => [
                         'name',
                         'avatar',
