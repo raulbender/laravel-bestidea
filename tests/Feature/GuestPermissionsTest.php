@@ -173,7 +173,7 @@ class GuestPermissionsTest extends TestCase {
         ]);
         $roomResponse->assertStatus(201);
 
-        $uuid = $roomResponse->json('data.room.uuid');
+        $uuid = $roomResponse->json('data.uuid');
 
         $this->actingAs($user)->postJson("/api/rooms/{$uuid}/ideas", [
             'content' => 'Ideia oficial em sala pública',
