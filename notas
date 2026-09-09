@@ -1,3 +1,6 @@
 1) no home.blade.php, nos cards das ideias, quando o texto da ideia é muito curto, isso "quebra" o posicionamento dos elementos, que sobem no card. Os elementos debaixo deveriam ficar colados embaixo.
 2) três linhas para a descrição da ideia no card será melhor, hoje tem apenas duas
 3) o item "criado por" deveria ficar abaixo dos badges no desktop. Hoje ele está no canto direito (sem sentido).
+4) o botão de compartilhar no card principal da ideia no mobile está no lado direito consumindo um precioso espaço vertical, ele deveria ficar no topo
+5) devemos rever o tamanho da fonte no card principal da sala, talvez uma fonte autoexpansível conforme o tamanho do texto?
+6) no mobile o card principal da sala parece estar com uma margin top muito grande...
