@@ -60,4 +60,53 @@ class SetLocaleMiddlewareTest extends TestCase {
         // Garante que o idioma alterou o valor exibido (ex: 'Raposa' != 'Fox')
         $this->assertNotEquals($nameInPt, $nameInEn);
     }
+
+    /**
+     * Testa se a View Home renderiza as chaves de tradução conforme o idioma solicitado.
+     */
+    public function test_home_page_renders_translated_strings_based_on_header() {
+        // Acessa a Home em PT-BR
+        $responsePt = $this->withHeaders(['Accept-Language' => 'pt-BR'])->get('/');
+        $responsePt->assertOk()
+            ->assertSee(__('app.home.hero.title', [], 'pt_BR'));
+
+        // Acessa a Home em EN
+        $responseEn = $this->withHeaders(['Accept-Language' => 'en'])->get('/');
+        $responseEn->assertOk()
+            ->assertSee(__('app.home.hero.title', [], 'en'));
+    }
+
+    /**
+     * Testa se a API de salas públicas traduz o expires_at_human com base no Accept-Language.
+     */
+    public function test_public_rooms_api_translates_expires_at_human_based_on_header() {
+        // Fixa o tempo do teste usando o helper do Laravel
+        $this->travelTo(now()->startOfHour());
+
+        // Cria uma sala pública que expira em exatos 2 dias
+        Room::factory()->public()->expiresInDays(2)->create();
+
+        // 1. Requisição em PT-BR
+        $responsePt = $this->withHeaders(['Accept-Language' => 'pt-BR'])
+            ->getJson('/api/rooms/public');
+
+        // 2. Requisição em EN
+        $responseEn = $this->withHeaders(['Accept-Language' => 'en'])
+            ->getJson('/api/rooms/public');
+
+        $responsePt->assertOk();
+        $responseEn->assertOk();
+
+        $expiresPt = $responsePt->json('data.0.room.expires_at_human');
+        $expiresEn = $responseEn->json('data.0.room.expires_at_human');
+
+        $this->assertNotNull($expiresPt);
+        $this->assertNotNull($expiresEn);
+
+        // Aceita singular ("dia") ou plural ("dias") em PT
+        $this->assertMatchesRegularExpression('/dia(s)?/', strtolower($expiresPt));
+
+        // Aceita singular ("day") ou plural ("days") em EN
+        $this->assertMatchesRegularExpression('/day(s)?/', strtolower($expiresEn));
+    }
 }
