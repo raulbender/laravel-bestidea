@@ -220,103 +220,139 @@
         </template>
     </section>
 
-    {{-- MODAL DE DETALHES DA IDEIA (COMENTÁRIOS + AVALIAÇÕES) --}}
+{{-- MODAL DE DETALHES DA IDEIA --}}
+<div
+    x-show="activeIdea !== null"
+    x-cloak
+    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm"
+    @keydown.escape.window="closeIdeaDetails()">
+
     <div
-        x-show="activeIdea !== null"
-        x-cloak
-        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm"
-        @keydown.escape.window="closeIdeaDetails()">
+        @click.outside="closeIdeaDetails()"
+        class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
 
-        <div
-            @click.outside="closeIdeaDetails()"
-            class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
-
-            {{-- CABEÇALHO DO MODAL --}}
-            <div class="p-5 border-b border-slate-800 flex items-start justify-between gap-4">
-                <div class="space-y-1">
-                    <span class="text-xs font-semibold text-amber-400" x-text="activeIdea?.created_at_human"></span>
-                    <p class="text-slate-100 font-medium text-base leading-relaxed break-words" x-text="activeIdea?.content"></p>
+        {{-- CABEÇALHO DO MODAL (Agora com Autor e Nota) --}}
+        <div class="p-5 border-b border-slate-800">
+            <div class="flex items-start justify-between gap-4 mb-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-xl">
+                        👤
+                    </div>
+                    <div>
+                        <p class="text-sm font-bold text-slate-200" x-text="activeIdea?.author_name || '{{ __('Anônimo') }}'"></p>
+                        <p class="text-xs text-slate-500" x-text="activeIdea?.created_at_human"></p>
+                    </div>
                 </div>
-                <button @click="closeIdeaDetails()" class="text-slate-400 hover:text-white p-1 rounded-lg">✕</button>
+                
+                <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-1.5 bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-xl">
+                        <span class="text-amber-400 text-sm">⭐</span>
+                        <span class="font-bold text-slate-200" x-text="activeIdea?.avg_score || activeIdea?.ratings_avg || '0.00'"></span>
+                    </div>
+                    <button @click="closeIdeaDetails()" class="text-slate-400 hover:text-white p-2 rounded-xl bg-slate-950 border border-slate-800 transition">✕</button>
+                </div>
             </div>
+            
+            <p class="text-slate-100 font-medium text-base leading-relaxed break-words" x-text="activeIdea?.content"></p>
+        </div>
 
-            {{-- ABAS DE NAVEGAÇÃO --}}
-            <div class="flex border-b border-slate-800 bg-slate-950/40 px-5 pt-3 gap-6 text-xs font-bold">
+        {{-- ABAS DE NAVEGAÇÃO (Novo Visual Segmentado) --}}
+        <div class="p-3 bg-slate-900 border-b border-slate-800 flex justify-center">
+            <div class="flex p-1 bg-slate-950 border border-slate-800 rounded-xl w-full max-w-md">
                 <button
                     @click="activeTab = 'comments'"
-                    :class="activeTab === 'comments' ? 'text-amber-400 border-b-2 border-amber-400 pb-2' : 'text-slate-400 pb-2'">
-                    Comentários (<span x-text="activeIdea?.comments_count || 0"></span>)
+                    :class="activeTab === 'comments' ? 'bg-slate-800 text-amber-400 shadow-sm' : 'text-slate-400 hover:text-slate-200'"
+                    class="flex-1 py-1.5 text-xs font-bold rounded-lg transition flex items-center justify-center gap-2">
+                    💬 Comentários (<span x-text="activeIdea?.comments_count || 0"></span>)
                 </button>
                 <button
                     @click="activeTab = 'ratings'"
-                    :class="activeTab === 'ratings' ? 'text-amber-400 border-b-2 border-amber-400 pb-2' : 'text-slate-400 pb-2'">
-                    Avaliações (<span x-text="activeIdea?.ratings_count || 0"></span>)
+                    :class="activeTab === 'ratings' ? 'bg-slate-800 text-amber-400 shadow-sm' : 'text-slate-400 hover:text-slate-200'"
+                    class="flex-1 py-1.5 text-xs font-bold rounded-lg transition flex items-center justify-center gap-2">
+                    ⭐ Avaliações (<span x-text="activeIdea?.ratings_count || 0"></span>)
                 </button>
             </div>
+        </div>
 
-            {{-- CORPO DO MODAL --}}
-            <div class="p-5 overflow-y-auto flex-1 space-y-4">
+        {{-- CORPO DO MODAL --}}
+        <div class="p-5 overflow-y-auto flex-1 space-y-4">
 
-                {{-- ABA 1: COMENTÁRIOS --}}
-                <div x-show="activeTab === 'comments'" class="space-y-4">
-                    <div class="flex gap-2">
-                        <input
-                            type="text"
-                            x-model="newComment"
-                            @keydown.enter="submitComment()"
-                            placeholder="Escreva um comentário..."
-                            class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
-                        <button
-                            @click="submitComment()"
-                            :disabled="!newComment.trim()"
-                            class="px-4 py-2 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-slate-950 font-bold text-xs rounded-xl">
-                            Enviar
-                        </button>
-                    </div>
+            {{-- ABA 1: COMENTÁRIOS --}}
+            <div x-show="activeTab === 'comments'" class="space-y-5">
+                <div class="flex gap-2">
+                    <input
+                        type="text"
+                        x-model="newComment"
+                        @keydown.enter="submitComment()"
+                        placeholder="Escreva um comentário..."
+                        class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 transition">
+                    <button
+                        @click="submitComment()"
+                        :disabled="!newComment.trim()"
+                        class="px-5 py-2.5 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-slate-950 font-bold text-sm rounded-xl transition">
+                        Enviar
+                    </button>
+                </div>
 
-                    <div class="space-y-2">
-                        <template x-for="comment in comments" :key="comment.id">
-                            <div class="bg-slate-950/60 border border-slate-800/60 rounded-xl p-3 text-xs space-y-1">
-                                <div class="flex justify-between text-slate-500">
-                                    <span class="font-bold text-slate-300" x-text="comment.author_name || 'Anônimo'"></span>
-                                    <span x-text="comment.created_at_human"></span>
-                                </div>
-                                <p class="text-slate-300" x-text="comment.content"></p>
+                <div class="space-y-3">
+                    <template x-for="comment in comments" :key="comment.id">
+                        <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-4 space-y-2">
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="font-bold text-amber-400" x-text="comment.author_name || 'Anônimo'"></span>
+                                <span class="text-slate-500" x-text="comment.created_at_human"></span>
                             </div>
-                        </template>
-                        <template x-if="comments.length === 0">
-                            <p class="text-xs text-slate-500 text-center py-4">Nenhum comentário ainda.</p>
+                            <p class="text-slate-300 text-sm leading-relaxed" x-text="comment.content"></p>
+                        </div>
+                    </template>
+                    <template x-if="comments.length === 0">
+                        <p class="text-sm text-slate-500 text-center py-6 bg-slate-950/40 rounded-xl border border-dashed border-slate-800">Seja o primeiro a comentar!</p>
+                    </template>
+                </div>
+            </div>
+
+            {{-- ABA 2: AVALIAÇÕES --}}
+            <div x-show="activeTab === 'ratings'" class="space-y-5">
+                
+                {{-- Sua Avaliação (Destaque) --}}
+                <div class="p-5 bg-gradient-to-br from-slate-950 to-slate-900 rounded-2xl border border-amber-500/20 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg">
+                    <div class="text-center sm:text-left">
+                        <h4 class="text-sm font-bold text-slate-200">Deixe sua nota</h4>
+                        <p class="text-xs text-slate-500">O que você achou dessa ideia?</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <template x-for="star in [1,2,3,4,5]" :key="star">
+                            <button @click="rateIdea(activeIdea.id, star)" class="text-2xl hover:scale-125 transition-transform drop-shadow-md">⭐</button>
                         </template>
                     </div>
                 </div>
 
-                {{-- ABA 2: AVALIAÇÕES --}}
-                <div x-show="activeTab === 'ratings'" class="space-y-4">
-                    <div class="p-3 bg-slate-950/60 rounded-xl border border-slate-800 flex items-center justify-between">
-                        <span class="text-xs text-slate-300">Sua avaliação:</span>
-                        <div class="flex gap-1">
-                            <template x-for="star in [1,2,3,4,5]" :key="star">
-                                <button @click="rateIdea(activeIdea.id, star)" class="text-lg hover:scale-110 transition">⭐</button>
+                <hr class="border-slate-800">
+
+                {{-- Lista de Avaliações (Focada em Feedback) --}}
+                <div class="space-y-3">
+                    <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Avaliações Recentes</h4>
+                    
+                    <template x-for="rating in ratings" :key="rating.id">
+                        <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-4 flex flex-col gap-2">
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="font-bold text-slate-300" x-text="rating.author_name || 'Anônimo'"></span>
+                                <span class="bg-slate-900 border border-slate-700 px-2 py-0.5 rounded-md text-amber-400 font-bold" x-text="'⭐ ' + rating.score"></span>
+                            </div>
+                            {{-- Exibe o feedback se existir --}}
+                            <template x-if="rating.feedback">
+                                <p class="text-slate-400 text-sm mt-1" x-text="rating.feedback"></p>
                             </template>
                         </div>
-                    </div>
-
-                    <div class="space-y-2">
-                        <template x-for="rating in ratings" :key="rating.id">
-                            <div class="bg-slate-950/60 border border-slate-800/60 rounded-xl p-3 text-xs flex justify-between items-center">
-                                <span class="text-slate-300" x-text="rating.author_name || 'Anônimo'"></span>
-                                <span class="text-amber-400 font-bold" x-text="'⭐ ' + rating.score"></span>
-                            </div>
-                        </template>
-                        <template x-if="ratings.length === 0">
-                            <p class="text-xs text-slate-500 text-center py-4">Nenhuma avaliação ainda.</p>
-                        </template>
-                    </div>
+                    </template>
+                    <template x-if="ratings.length === 0">
+                        <p class="text-sm text-slate-500 text-center py-6 bg-slate-950/40 rounded-xl border border-dashed border-slate-800">Nenhuma nota registrada ainda.</p>
+                    </template>
                 </div>
-
             </div>
+
         </div>
     </div>
+</div>
 
 </div>
 
@@ -462,7 +498,8 @@
 
             async fetchComments(ideaId) {
                 try {
-                    const response = await fetch(`/api/ideas/${ideaId}/comments`);
+                    // Adicionado o room_uuid obrigatório para passar no middleware/controller
+                    const response = await fetch(`/api/ideas/${ideaId}/comments?room_uuid=${this.uuid}`);
                     if (response.ok) {
                         const json = await response.json();
                         this.comments = json.data || json;
@@ -474,7 +511,8 @@
 
             async fetchRatings(ideaId) {
                 try {
-                    const response = await fetch(`/api/ideas/${ideaId}/ratings`);
+                    // Adicionado o room_uuid obrigatório para passar no middleware/controller
+                    const response = await fetch(`/api/ideas/${ideaId}/ratings?room_uuid=${this.uuid}`);
                     if (response.ok) {
                         const json = await response.json();
                         this.ratings = json.data || json;
