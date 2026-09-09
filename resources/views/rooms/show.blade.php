@@ -84,8 +84,7 @@
             {{-- Chamada Fechada --}}
             <div x-show="!showForm" class="flex items-center justify-end gap-4">
                 <div class="flex items-center gap-3 min-w-0">
-
-                    <div class="min-w-0 ">
+                    <div class="min-w-0">
                         <h3 class="hidden sm:inline text-sm font-bold text-white truncate">{{ __('app.ideas.add_title') }}</h3>
                         <p class="text-xs text-slate-400">{{ __('app.ideas.anonymous') }}</p>
                     </div>
@@ -112,7 +111,6 @@
                             </span>
                         </template>
                     </div>
-
                 </div>
 
                 <textarea
@@ -182,8 +180,20 @@
         </div>
     </div>
 
-    {{-- FEED DE IDEIAS --}}
+    {{-- FEED DE IDEIAS (COLUNA ÚNICA CENTRALIZADA) --}}
     <section class="max-w-3xl mx-auto space-y-4">
+        <template x-if="loading && ideas.length === 0">
+            <template x-for="i in 3" :key="i">
+                <div class="animate-pulse bg-slate-900/60 border border-slate-800 h-28 rounded-2xl p-5"></div>
+            </template>
+        </template>
+
+        <template x-if="!loading && ideas.length === 0">
+            <div class="text-center py-12 bg-slate-900/40 rounded-2xl border border-dashed border-slate-800">
+                <p class="text-xs text-slate-500">{{ __('app.ideas.empty') }}</p>
+            </div>
+        </template>
+
         {{-- Cards das ideias --}}
         <template x-for="idea in ideas" :key="idea.id">
             <div
@@ -202,7 +212,7 @@
 
                         <span class="flex items-center gap-1 bg-slate-950 border border-slate-800 px-2.5 py-1 rounded-lg text-slate-300">
                             <span class="text-amber-400">⭐</span>
-                            <span class="font-bold" x-text="idea.avg_score || '0.00'"></span>
+                            <span class="font-bold" x-text="idea.avg_score || idea.ratings_avg || '0.00'"></span>
                         </span>
                     </div>
                 </div>
@@ -210,7 +220,106 @@
         </template>
     </section>
 
+    {{-- MODAL DE DETALHES DA IDEIA (COMENTÁRIOS + AVALIAÇÕES) --}}
+    <div
+        x-show="activeIdea !== null"
+        x-cloak
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm"
+        @keydown.escape.window="closeIdeaDetails()">
+
+        <div
+            @click.outside="closeIdeaDetails()"
+            class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+
+            {{-- CABEÇALHO DO MODAL --}}
+            <div class="p-5 border-b border-slate-800 flex items-start justify-between gap-4">
+                <div class="space-y-1">
+                    <span class="text-xs font-semibold text-amber-400" x-text="activeIdea?.created_at_human"></span>
+                    <p class="text-slate-100 font-medium text-base leading-relaxed break-words" x-text="activeIdea?.content"></p>
+                </div>
+                <button @click="closeIdeaDetails()" class="text-slate-400 hover:text-white p-1 rounded-lg">✕</button>
+            </div>
+
+            {{-- ABAS DE NAVEGAÇÃO --}}
+            <div class="flex border-b border-slate-800 bg-slate-950/40 px-5 pt-3 gap-6 text-xs font-bold">
+                <button
+                    @click="activeTab = 'comments'"
+                    :class="activeTab === 'comments' ? 'text-amber-400 border-b-2 border-amber-400 pb-2' : 'text-slate-400 pb-2'">
+                    Comentários (<span x-text="activeIdea?.comments_count || 0"></span>)
+                </button>
+                <button
+                    @click="activeTab = 'ratings'"
+                    :class="activeTab === 'ratings' ? 'text-amber-400 border-b-2 border-amber-400 pb-2' : 'text-slate-400 pb-2'">
+                    Avaliações (<span x-text="activeIdea?.ratings_count || 0"></span>)
+                </button>
+            </div>
+
+            {{-- CORPO DO MODAL --}}
+            <div class="p-5 overflow-y-auto flex-1 space-y-4">
+
+                {{-- ABA 1: COMENTÁRIOS --}}
+                <div x-show="activeTab === 'comments'" class="space-y-4">
+                    <div class="flex gap-2">
+                        <input
+                            type="text"
+                            x-model="newComment"
+                            @keydown.enter="submitComment()"
+                            placeholder="Escreva um comentário..."
+                            class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
+                        <button
+                            @click="submitComment()"
+                            :disabled="!newComment.trim()"
+                            class="px-4 py-2 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-slate-950 font-bold text-xs rounded-xl">
+                            Enviar
+                        </button>
+                    </div>
+
+                    <div class="space-y-2">
+                        <template x-for="comment in comments" :key="comment.id">
+                            <div class="bg-slate-950/60 border border-slate-800/60 rounded-xl p-3 text-xs space-y-1">
+                                <div class="flex justify-between text-slate-500">
+                                    <span class="font-bold text-slate-300" x-text="comment.author_name || 'Anônimo'"></span>
+                                    <span x-text="comment.created_at_human"></span>
+                                </div>
+                                <p class="text-slate-300" x-text="comment.content"></p>
+                            </div>
+                        </template>
+                        <template x-if="comments.length === 0">
+                            <p class="text-xs text-slate-500 text-center py-4">Nenhum comentário ainda.</p>
+                        </template>
+                    </div>
+                </div>
+
+                {{-- ABA 2: AVALIAÇÕES --}}
+                <div x-show="activeTab === 'ratings'" class="space-y-4">
+                    <div class="p-3 bg-slate-950/60 rounded-xl border border-slate-800 flex items-center justify-between">
+                        <span class="text-xs text-slate-300">Sua avaliação:</span>
+                        <div class="flex gap-1">
+                            <template x-for="star in [1,2,3,4,5]" :key="star">
+                                <button @click="rateIdea(activeIdea.id, star)" class="text-lg hover:scale-110 transition">⭐</button>
+                            </template>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <template x-for="rating in ratings" :key="rating.id">
+                            <div class="bg-slate-950/60 border border-slate-800/60 rounded-xl p-3 text-xs flex justify-between items-center">
+                                <span class="text-slate-300" x-text="rating.author_name || 'Anônimo'"></span>
+                                <span class="text-amber-400 font-bold" x-text="'⭐ ' + rating.score"></span>
+                            </div>
+                        </template>
+                        <template x-if="ratings.length === 0">
+                            <p class="text-xs text-slate-500 text-center py-4">Nenhuma avaliação ainda.</p>
+                        </template>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
 </div>
+
 <script>
     function roomBoard(roomUuid, roomId = null) {
         return {
@@ -227,6 +336,14 @@
             sortBy: 'recent',
             filterMine: false,
             roomUrl: window.location.href,
+            
+            // Novos Estados do Modal
+            activeIdea: null,
+            activeTab: 'comments',
+            comments: [],
+            ratings: [],
+            newComment: '',
+
             toast: {
                 show: false,
                 message: '',
@@ -234,7 +351,6 @@
             },
 
             async init() {
-                // Garante que os detalhes da sala (e IDs) foram carregados ANTES de buscar as ideias
                 await this.fetchRoomDetails();
                 await this.fetchIdeas();
             },
@@ -255,7 +371,7 @@
 
             copyLink() {
                 navigator.clipboard.writeText(this.roomUrl);
-                this.showToast(this.i18n('app.toasts.link_copied'), '📋');
+                this.showToast('Link copiado!', '📋');
             },
 
             setSort(type) {
@@ -269,40 +385,45 @@
                 this.fetchIdeas();
             },
 
+            openIdeaDetails(idea) {
+                this.activeIdea = idea;
+                this.activeTab = 'comments';
+                this.fetchComments(idea.id);
+                this.fetchRatings(idea.id);
+            },
+
+            closeIdeaDetails() {
+                this.activeIdea = null;
+                this.comments = [];
+                this.ratings = [];
+                this.newComment = '';
+            },
+
             async fetchRoomDetails() {
                 try {
                     const response = await fetch(`/api/rooms/${this.uuid}`);
                     const json = await response.json();
-
                     const payload = json.data || json;
                     this.roomData = payload;
-                    this.roomOwner = payload.owner_name || this.i18n('app.ideas.anonymous');
+                    this.roomOwner = payload.owner_name || 'Anônimo';
                     this.myPersona = payload.my_persona || null;
-
                     this.roomId = this.roomData.id || this.roomId;
                 } catch (error) {
-                    console.error(this.i18n('app.toasts.error'), error);
+                    console.error(error);
                 }
             },
 
             async fetchIdeas() {
                 this.loading = true;
                 try {
-                    // Alterado: enviando room_uuid na Query String
                     let url = `/api/ideas?sort=${this.sortBy}&room_uuid=${this.uuid}`;
-
                     if (this.filterMine) url += `&filter=mine`;
-
                     const response = await fetch(url);
-
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                     const json = await response.json();
                     this.ideas = json.data || json;
                 } catch (error) {
-                    console.error(this.i18n('app.toasts.error'), error);
+                    console.error(error);
                     this.ideas = [];
                 } finally {
                     this.loading = false;
@@ -311,7 +432,6 @@
 
             async submitIdea() {
                 if (this.newIdeaContent.trim().length < 5 || this.submitting) return;
-
                 this.submitting = true;
                 try {
                     const response = await fetch(`/api/rooms/${this.uuid}/ideas`, {
@@ -330,19 +450,69 @@
                     if (response.ok) {
                         this.newIdeaContent = '';
                         this.showForm = false;
-                        this.showToast(this.i18n('app.toasts.idea_published'), '🎉');
+                        this.showToast('Ideia publicada!', '🎉');
                         this.fetchIdeas();
                     }
                 } catch (error) {
-                    this.showToast(this.i18n('app.toasts.error'), '❌');
+                    this.showToast('Erro ao enviar', '❌');
                 } finally {
                     this.submitting = false;
                 }
             },
 
+            async fetchComments(ideaId) {
+                try {
+                    const response = await fetch(`/api/ideas/${ideaId}/comments`);
+                    if (response.ok) {
+                        const json = await response.json();
+                        this.comments = json.data || json;
+                    }
+                } catch (error) {
+                    console.error(error);
+                }
+            },
+
+            async fetchRatings(ideaId) {
+                try {
+                    const response = await fetch(`/api/ideas/${ideaId}/ratings`);
+                    if (response.ok) {
+                        const json = await response.json();
+                        this.ratings = json.data || json;
+                    }
+                } catch (error) {
+                    console.error(error);
+                }
+            },
+
+            async submitComment() {
+                if (!this.newComment.trim() || !this.activeIdea) return;
+                try {
+                    const response = await fetch(`/api/ideas/${this.activeIdea.id}/comments`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify({
+                            content: this.newComment,
+                            room_uuid: this.uuid
+                        })
+                    });
+
+                    if (response.ok) {
+                        this.newComment = '';
+                        this.fetchComments(this.activeIdea.id);
+                        this.activeIdea.comments_count = (this.activeIdea.comments_count || 0) + 1;
+                        this.showToast('Comentário enviado!', '💬');
+                    }
+                } catch (error) {
+                    this.showToast('Erro ao comentar', '❌');
+                }
+            },
+
             async rateIdea(ideaId, score) {
                 try {
-                    // Alterado: enviando room_uuid para autorizar a votação
                     await fetch(`/api/ideas/${ideaId}/ratings`, {
                         method: 'POST',
                         headers: {
@@ -355,10 +525,13 @@
                             room_uuid: this.uuid
                         })
                     });
-                    this.showToast(this.i18n('app.toasts.vote_registered'), '⭐');
+                    this.showToast('Avaliação salva!', '⭐');
+                    if (this.activeIdea) {
+                        this.fetchRatings(ideaId);
+                    }
                     this.fetchIdeas();
                 } catch (error) {
-                    console.error(this.i18n('app.toasts.error'), error);
+                    console.error(error);
                 }
             }
         }
