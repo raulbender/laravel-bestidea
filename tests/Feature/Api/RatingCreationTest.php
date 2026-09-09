@@ -5,6 +5,7 @@ namespace Tests\Feature\Api;
 use App\Models\Idea;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use App\Models\Rating;
 
 class RatingCreationTest extends TestCase {
     use RefreshDatabase;
@@ -157,12 +158,9 @@ class RatingCreationTest extends TestCase {
     public function test_can_list_ratings_for_an_idea(): void {
         $idea = Idea::factory()->create();
 
-        // Cria duas avaliações para a mesma ideia
-        \App\Models\Rating::factory()->count(2)->create([
-            'idea_id' => $idea->id,
-        ]);
+        Rating::factory()->count(2)->create(['idea_id' => $idea->id ]);
 
-        $response = $this->getJson("/api/ideas/{$idea->id}/ratings");
+        $response = $this->getJson("/api/ideas/{$idea->id}/ratings?room_uuid={$idea->room->uuid}");
 
         $response->assertStatus(200)
             ->assertJsonCount(2, 'data')
