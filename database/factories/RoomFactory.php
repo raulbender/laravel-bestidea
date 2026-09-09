@@ -21,7 +21,7 @@ class RoomFactory extends Factory {
             'user_id'     => User::factory(),
             'description' => $this->faker->sentence(),
             'is_public'   => true,
-            'expires_at'  => now()->addHours(fake()->numberBetween(1, 360)),
+            'expires_at'  => fake()->boolean(50) ? now()->addHours(fake()->numberBetween(1, 360)) : null,
         ];
     }
 
