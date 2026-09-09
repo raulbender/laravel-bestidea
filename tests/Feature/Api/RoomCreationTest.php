@@ -7,6 +7,7 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use App\Models\Room;
 use App\Models\User;
+use App\Http\Resources\Api\RoomResource;
 
 class RoomCreationTest extends TestCase {
     use RefreshDatabase;
@@ -35,14 +36,14 @@ class RoomCreationTest extends TestCase {
         // 3. Assert: Verify response and database persistence
         $response->assertStatus(201)
             ->assertJsonStructure([
-                'data' => [                    
-                        'id',
-                        'uuid',
-                        'description',
-                        'expires_at',
-                        'created_at',
-                        'created_at_human',
-                        'owner_name',                    
+                'data' => [
+                    'id',
+                    'uuid',
+                    'description',
+                    'expires_at',
+                    'created_at',
+                    'created_at_human',
+                    'owner_name',
                 ],
             ]);
 
@@ -101,9 +102,9 @@ class RoomCreationTest extends TestCase {
         // 3. Assert: Verify status code and payload structure
         $response->assertStatus(200)
             ->assertJson([
-                'data' => [                    
-                        'uuid'        => $room->uuid,
-                        'description' => 'Brainstorming Session',                    
+                'data' => [
+                    'uuid'        => $room->uuid,
+                    'description' => 'Brainstorming Session',
                 ],
             ]);
     }
@@ -181,7 +182,7 @@ class RoomCreationTest extends TestCase {
         // 3. Assert: Verifica se a persona foi sorteada e anexada ao contrato JSON
         $response->assertStatus(200)
             ->assertJsonStructure([
-                'data' => [                    
+                'data' => [
                     'my_persona' => [
                         'name',
                         'avatar',
@@ -222,5 +223,29 @@ class RoomCreationTest extends TestCase {
         // Deve manter o mesmo animal sorteado na primeira requisição
         $secondResponse->assertStatus(200)
             ->assertJsonPath('data.my_persona.name', $assignedPersona['name']);
+    }
+
+    public function test_room_is_expiring_soon_logic() {
+        $request = request();
+
+        // Cenário 1: Sem data de expiração (Permanente)
+        $roomPermanent = Room::factory()->create(['expires_at' => null]);
+        $resource = (new RoomResource($roomPermanent))->toArray($request);
+        $this->assertFalse($resource['is_expiring_soon']);
+
+        // Cenário 2: Expira em mais de 24 horas
+        $roomSafe = Room::factory()->create(['expires_at' => now()->addHours(25)]);
+        $resource = (new RoomResource($roomSafe))->toArray($request);
+        $this->assertFalse($resource['is_expiring_soon']);
+
+        // Cenário 3: Expira em menos de 24 horas (Expiring Soon)
+        $roomExpiring = Room::factory()->create(['expires_at' => now()->addHours(23)]);
+        $resource = (new RoomResource($roomExpiring))->toArray($request);
+        $this->assertTrue($resource['is_expiring_soon']);
+
+        // Cenário 4: Já expirou (Passado)
+        $roomExpired = Room::factory()->create(['expires_at' => now()->subHour()]);
+        $resource = (new RoomResource($roomExpired))->toArray($request);
+        $this->assertFalse($resource['is_expiring_soon']);
     }
 }
