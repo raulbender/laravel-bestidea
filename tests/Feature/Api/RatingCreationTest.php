@@ -78,7 +78,7 @@ class RatingCreationTest extends TestCase {
     public function test_user_cannot_rate_same_idea_multiple_times(): void {
         $this->seed(\Database\Seeders\AuthorSeeder::class);
 
-        
+
         $idea = Idea::factory()->create();
         $roomUuid = $idea->room->uuid;
 
@@ -149,5 +149,27 @@ class RatingCreationTest extends TestCase {
             'ratings_count' => 2,
             'avg_score'     => 3.50,
         ]);
+    }
+
+    /**
+     * Test that anyone in the room can fetch ratings for a specific idea.
+     */
+    public function test_can_list_ratings_for_an_idea(): void {
+        $idea = Idea::factory()->create();
+
+        // Cria duas avaliações para a mesma ideia
+        \App\Models\Rating::factory()->count(2)->create([
+            'idea_id' => $idea->id,
+        ]);
+
+        $response = $this->getJson("/api/ideas/{$idea->id}/ratings");
+
+        $response->assertStatus(200)
+            ->assertJsonCount(2, 'data')
+            ->assertJsonStructure([
+                'data' => [
+                    '*' => ['id', 'score', 'author_name', 'created_at_human']
+                ]
+            ]);
     }
 }
