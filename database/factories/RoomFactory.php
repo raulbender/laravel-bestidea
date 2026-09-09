@@ -21,8 +21,26 @@ class RoomFactory extends Factory {
             'user_id'     => User::factory(),
             'description' => $this->faker->sentence(),
             'is_public'   => true,
-            'expires_at'  => now()->addDays(7),
+            'expires_at'  => now()->addHours(fake()->numberBetween(1, 360)),
         ];
+    }
+
+    /**
+     * State para salas prestes a expirar ou com tempo específico em dias
+     */
+    public function expiresInDays(int $days): static {
+        return $this->state(fn(array $attributes) => [
+            'expires_at' => now()->addDays($days),
+        ]);
+    }
+
+    /**
+     * State para salas sem expiração
+     */
+    public function neverExpires(): static {
+        return $this->state(fn(array $attributes) => [
+            'expires_at' => null,
+        ]);
     }
 
     /**
@@ -43,66 +61,65 @@ class RoomFactory extends Factory {
         ]);
     }
 
-public function withFullContent(?int $ideasCount = null): static 
-{
-    return $this->afterCreating(function (Room $room) use ($ideasCount) {
-        // Se não for informado um valor fixo, sorteia entre 3 e 12 ideias
-        $count = $ideasCount ?? fake()->numberBetween(3, 12);
+    public function withFullContent(?int $ideasCount = null): static {
+        return $this->afterCreating(function (Room $room) use ($ideasCount) {
+            // Se não for informado um valor fixo, sorteia entre 3 e 12 ideias
+            $count = $ideasCount ?? fake()->numberBetween(3, 12);
 
-        $users = User::factory(fake()->numberBetween(5, 15))->create();
-        $authors = Author::all();
+            $users = User::factory(fake()->numberBetween(5, 15))->create();
+            $authors = Author::all();
 
-        $ensureRoomUser = function (int $roomId, string $userId) use ($authors) {
-            return RoomUser::firstOrCreate(
-                ['room_id' => $roomId, 'user_id' => $userId],
-                ['author_id' => $authors->random()->id]
-            );
-        };
+            $ensureRoomUser = function (int $roomId, string $userId) use ($authors) {
+                return RoomUser::firstOrCreate(
+                    ['room_id' => $roomId, 'user_id' => $userId],
+                    ['author_id' => $authors->random()->id]
+                );
+            };
 
-        $ensureRoomUser($room->id, $room->user_id);
+            $ensureRoomUser($room->id, $room->user_id);
 
-        Idea::factory($count)
-            ->for($room)
-            ->recycle($users)
-            ->create()
-            ->each(function (Idea $idea) use ($room, $users, $ensureRoomUser) {
+            Idea::factory($count)
+                ->for($room)
+                ->recycle($users)
+                ->create()
+                ->each(function (Idea $idea) use ($room, $users, $ensureRoomUser) {
 
-                $ensureRoomUser($room->id, $idea->user_id);
+                    $ensureRoomUser($room->id, $idea->user_id);
 
-                // Criar comentários (1 a 5 por ideia)
-                $comments = Comment::factory(fake()->numberBetween(1, 5))
-                    ->for($idea)
-                    ->recycle($users)
-                    ->create();
+                    // Criar comentários (1 a 5 por ideia)
+                    $comments = Comment::factory(fake()->numberBetween(1, 5))
+                        ->for($idea)
+                        ->recycle($users)
+                        ->create();
 
-                foreach ($comments as $comment) {
-                    $ensureRoomUser($room->id, $comment->user_id);
-                }
+                    foreach ($comments as $comment) {
+                        $ensureRoomUser($room->id, $comment->user_id);
+                    }
 
-                // Criar avaliações (1 até total de usuários)
-                $ratingsCount = fake()->numberBetween(1, min(6, $users->count()));
-                $randomUsersForRatings = $users->shuffle()->take($ratingsCount);
+                    // Criar avaliações (1 até total de usuários)
+                    $ratingsCount = fake()->numberBetween(1, min(6, $users->count()));
+                    $randomUsersForRatings = $users->shuffle()->take($ratingsCount);
 
-                $totalScore = 0;
-                foreach ($randomUsersForRatings as $user) {
-                    $rating = Rating::factory()->create([
-                        'idea_id' => $idea->id,
-                        'user_id' => $user->id,
+                    $totalScore = 0;
+                    foreach ($randomUsersForRatings as $user) {
+                        $rating = Rating::factory()->create([
+                            'idea_id' => $idea->id,
+                            'user_id' => $user->id,
+                        ]);
+
+                        $totalScore += $rating->score;
+                        $ensureRoomUser($room->id, $user->id);
+                    }
+
+                    // Atualiza os contadores reais na model de Ideia
+                    $realRatingsCount = $randomUsersForRatings->count();
+                    $idea->update([
+                        'comments_count' => $comments->count(),
+                        'ratings_count'  => $realRatingsCount,
+                        'total_score'    => $totalScore,
+                        'avg_score'      => $realRatingsCount > 0 ? round($totalScore / $realRatingsCount, 2) : 0,
                     ]);
-
-                    $totalScore += $rating->score;
-                    $ensureRoomUser($room->id, $user->id);
-                }
-
-                // Atualiza os contadores reais na model de Ideia
-                $realRatingsCount = $randomUsersForRatings->count();
-                $idea->update([
-                    'comments_count' => $comments->count(),
-                    'ratings_count'  => $realRatingsCount,
-                    'total_score'    => $totalScore,
-                    'avg_score'      => $realRatingsCount > 0 ? round($totalScore / $realRatingsCount, 2) : 0,
-                ]);
-            });
-    });
-}
+                });
+        });
+    }
 }
