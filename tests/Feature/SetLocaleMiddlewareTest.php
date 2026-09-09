@@ -97,8 +97,8 @@ class SetLocaleMiddlewareTest extends TestCase {
         $responsePt->assertOk();
         $responseEn->assertOk();
 
-        $expiresPt = $responsePt->json('data.0.room.expires_at_human');
-        $expiresEn = $responseEn->json('data.0.room.expires_at_human');
+        $expiresPt = $responsePt->json('data.0.expires_at_human');
+        $expiresEn = $responseEn->json('data.0.expires_at_human');
 
         $this->assertNotNull($expiresPt);
         $this->assertNotNull($expiresEn);
