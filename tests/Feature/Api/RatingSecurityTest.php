@@ -158,4 +158,52 @@ class RatingSecurityTest extends TestCase
 
         $response->assertStatus(404);
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Segurança da Listagem de Avaliações (GET /api/ideas/{id}/ratings)
+    |--------------------------------------------------------------------------
+    */
+
+    public function test_prevents_listing_ratings_without_room_uuid(): void
+    {
+        $room = Room::factory()->create(['is_public' => false]);
+        $idea = Idea::factory()->create(['room_id' => $room->id]);
+
+        $response = $this->getJson("/api/ideas/{$idea->id}/ratings");
+
+        $response->assertStatus(403);
+    }
+
+    public function test_prevents_listing_ratings_with_mismatched_room_uuid(): void
+    {
+        $roomA = Room::factory()->create();
+        $roomB = Room::factory()->create();
+
+        $ideaInRoomA = Idea::factory()->create(['room_id' => $roomA->id]);
+
+        $response = $this->getJson("/api/ideas/{$ideaInRoomA->id}/ratings?room_uuid={$roomB->uuid}");
+
+        $response->assertStatus(403);
+    }
+
+    public function test_allows_listing_ratings_with_valid_room_uuid(): void
+    {
+        $room = Room::factory()->create();
+        $idea = Idea::factory()->create(['room_id' => $room->id]);
+
+        $response = $this->getJson("/api/ideas/{$idea->id}/ratings?room_uuid={$room->uuid}");
+
+        $response->assertStatus(200)
+            ->assertJsonStructure(['data']);
+    }
+
+    public function test_returns_404_when_listing_ratings_of_non_existent_idea(): void
+    {
+        $room = Room::factory()->create();
+
+        $response = $this->getJson("/api/ideas/99999/ratings?room_uuid={$room->uuid}");
+
+        $response->assertStatus(404);
+    }
 }
