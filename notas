@@ -1,0 +1,3 @@
+1) no home.blade.php, nos cards das ideias, quando o texto da ideia é muito curto, isso "quebra" o posicionamento dos elementos, que sobem no card. Os elementos debaixo deveriam ficar colados embaixo.
+2) três linhas para a descrição da ideia no card será melhor, hoje tem apenas duas
+3) o item "criado por" deveria ficar abaixo dos badges no desktop. Hoje ele está no canto direito (sem sentido).
