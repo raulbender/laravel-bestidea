@@ -21,22 +21,47 @@
     {{-- CARD PRINCIPAL DA SALA --}}
     <header class="bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-7 shadow-xl flex flex-col justify-between">
 
-        {{-- TOPO: Badge de Privacidade + Botão Compartilhar --}}
+        {{-- TOPO: Badges de Estado (Privacidade + Expiração) + Botão Compartilhar --}}
         <div class="flex items-center justify-between gap-4 mb-4">
-            {{-- Badge de Privacidade --}}
-            <div class="flex items-center">
+
+            {{-- Grupo de Badges --}}
+            <div class="flex items-center gap-2 flex-wrap">
+
+                {{-- Badges de Expiração --}}
+                {{-- 1. Sala Permanente (sem data de expiração) --}}
+                <template x-if="!roomData.expires_at">
+                    <x-badge variant="cyan" icon="♾️">
+                        {{ __('app.ideas.no_expires') }}
+                    </x-badge>
+                </template>
+
+                {{-- 2. Sala Prestes a Expirar (Temporária + Expira em Breve) --}}
+                <template x-if="roomData.expires_at && roomData.is_expiring_soon">
+                    <x-badge variant="amber" icon="⏳" :pulse="true">
+                        <span x-text="'{{ __('app.ideas.expires_in') }} ' + roomData.expires_at_human"></span>
+                    </x-badge>
+                </template>
+
+                {{-- 3. Sala Temporária Normal (Expira, mas não em breve) --}}
+                <template x-if="roomData.expires_at && !roomData.is_expiring_soon">
+                    <x-badge variant="slate" icon="⏳">
+                        <span x-text="'{{ __('app.ideas.expires_in') }} ' + roomData.expires_at_human"></span>
+                    </x-badge>
+                </template>
+
+                {{-- Badges de Privacidade --}}
                 <template x-if="roomData.is_public">
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shrink-0">
-                        <span>🌐</span>
-                        <span>{{ __('app.privacy.public') }}</span>
-                    </span>
+                    <x-badge variant="emerald" icon="🌐">
+                        {{ __('app.privacy.public') }}
+                    </x-badge>
                 </template>
+
                 <template x-if="!roomData.is_public">
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20 shrink-0">
-                        <span>🔒</span>
-                        <span>{{ __('app.privacy.unlisted') }}</span>
-                    </span>
+                    <x-badge variant="amber" icon="🔒">
+                        {{ __('app.privacy.unlisted') }}
+                    </x-badge>
                 </template>
+
             </div>
 
             {{-- Botão Compartilhar --}}
@@ -51,8 +76,6 @@
         </div>
 
         {{-- CENTRO: Pergunta / Tema Principal --}}
-
-
         <div class="mb-6">
             <h1
                 class="text-xl sm:text-2xl md:text-3xl font-extrabold text-white leading-snug break-words"
@@ -61,15 +84,10 @@
 
         {{-- RODAPÉ: Metadados Limpos --}}
         <div class="pt-4 border-t border-slate-800/80 flex items-center justify-between gap-4">
-            <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 min-w-0">
+            <div class="flex items-center gap-1 min-w-0">
                 <span class="text-xs font-medium text-slate-300 truncate">
                     {{ __('app.ideas.created_by') }} <span class="text-amber-400 font-semibold" x-text="roomOwner || '{{ __('app.idea.anonymous') }}'"></span>
                 </span>
-                <span class="hidden sm:inline text-slate-700">•</span>
-                <span
-                    class="text-[11px] truncate"
-                    :class="roomData.is_expiring_soon ? 'text-amber-400 font-semibold animate-pulse' : 'text-slate-500'"
-                    x-text="roomData.expires_at_human ? '{{ __('app.ideas.expires_in') }} ' + roomData.expires_at_human : '{{ __('app.ideas.no_expires') }}'"></span>
             </div>
         </div>
     </header>
@@ -291,7 +309,7 @@
                     const json = await response.json();
 
                     const payload = json.data || json;
-                    this.roomData = payload.room || payload;
+                    this.roomData = payload;
                     this.roomOwner = payload.owner_name || this.i18n('app.ideas.anonymous');
                     this.myPersona = payload.my_persona || null;
 
