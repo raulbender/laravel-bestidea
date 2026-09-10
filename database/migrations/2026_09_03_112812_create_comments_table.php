@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(Idea::class)->constrained()->cascadeOnDelete();
             $table->foreignUuidFor(User::class)->constrained()->cascadeOnDelete();
-            $table->foreignIdFor(Author::class)->constrained()->cascadeOnDelete();
-            
+            $table->foreignIdFor(Author::class)->constrained()->cascadeOnDelete();            
             $table->text('content');
+            $table->foreignId('rating_id')->nullable()->constrained('ratings')->nullOnDelete();
             $table->foreignId('parent_id')->nullable()->constrained('comments')->nullOnDelete(); // Suporte futuro a threads
             $table->timestamps();
         });

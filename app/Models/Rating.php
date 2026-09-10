@@ -6,24 +6,24 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Rating extends Model
-{
+class Rating extends Model {
     use HasFactory;
 
     protected $guarded = [];
 
-    public function idea(): BelongsTo
-    {
+    public function idea(): BelongsTo {
         return $this->belongsTo(Idea::class);
     }
 
-    public function user(): BelongsTo
-    {
+    public function user(): BelongsTo {
         return $this->belongsTo(User::class);
     }
 
-    public function author(): BelongsTo
-    {
+    public function author(): BelongsTo {
         return $this->belongsTo(Author::class);
+    }
+
+    public function comment() {
+        return $this->hasOne(Comment::class);
     }
 }

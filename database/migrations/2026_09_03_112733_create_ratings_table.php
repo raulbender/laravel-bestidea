@@ -17,8 +17,7 @@ return new class extends Migration
             $table->foreignUuidFor(User::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(Author::class)->constrained()->cascadeOnDelete();
             
-            $table->tinyInteger('score'); // Ex: -1 e +1 (upvote/downvote) ou 1 a 5
-            $table->string('feedback', 255)->nullable(); // Comentário opcional atrelado à nota
+            $table->tinyInteger('score'); // Ex: -1 e +1 (upvote/downvote) ou 1 a 5            
             $table->timestamps();
 
             // Regra de Integridade: Cada usuário só avalia uma ideia 1 vez por sala
