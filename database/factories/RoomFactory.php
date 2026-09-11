@@ -101,25 +101,38 @@ class RoomFactory extends Factory {
                     $randomUsersForRatings = $users->shuffle()->take($ratingsCount);
 
                     $totalScore = 0;
+                    $extraCommentsCount = 0;
                     foreach ($randomUsersForRatings as $user) {
-                        $rating = Rating::factory()->create([
+                    $rating = Rating::factory()->create([
+                        'idea_id' => $idea->id,
+                        'user_id' => $user->id,
+                    ]);
+
+                    // Em 50% das avaliações, gera também um comentário atrelado ao mesmo usuário
+                    if (fake()->boolean(50)) {
+                        Comment::factory()->create([
                             'idea_id' => $idea->id,
                             'user_id' => $user->id,
+                            'rating_id' => $rating->id,
                         ]);
-
-                        $totalScore += $rating->score;
-                        $ensureRoomUser($room->id, $user->id);
+                        $extraCommentsCount++;
                     }
 
-                    // Atualiza os contadores reais na model de Ideia
-                    $realRatingsCount = $randomUsersForRatings->count();
-                    $idea->update([
-                        'comments_count' => $comments->count(),
-                        'ratings_count'  => $realRatingsCount,
-                        'total_score'    => $totalScore,
-                        'avg_score'      => $realRatingsCount > 0 ? round($totalScore / $realRatingsCount, 2) : 0,
-                    ]);
-                });
-        });
+                    $totalScore += $rating->score;
+                    $ensureRoomUser($room->id, $user->id);
+                }
+
+                // Atualiza os contadores reais na model de Ideia
+                $realRatingsCount = $randomUsersForRatings->count();
+                $totalCommentsCount = $comments->count() + $extraCommentsCount;
+
+                $idea->update([
+                    'comments_count' => $totalCommentsCount,
+                    'ratings_count'  => $realRatingsCount,
+                    'total_score'    => $totalScore,
+                    'avg_score'      => $realRatingsCount > 0 ? round($totalScore / $realRatingsCount, 2) : 0,
+                ]);
+            });
+    });
     }
 }
