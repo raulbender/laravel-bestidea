@@ -4,3 +4,5 @@
 4) o botão de compartilhar no card principal da ideia no mobile está no lado direito consumindo um precioso espaço vertical, ele deveria ficar no topo
 5) devemos rever o tamanho da fonte no card principal da sala, talvez uma fonte autoexpansível conforme o tamanho do texto?
 6) no mobile o card principal da sala parece estar com uma margin top muito grande...
+7) a distancia entre os filtros e o feed das ideias está muito grande, fica a sensação de que nao se sabe se esse elemento pertence ao card principal ou ao feed
+8) no mobile, a distancia da navbar par ao card principal está muito grande
