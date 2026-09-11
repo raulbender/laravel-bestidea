@@ -23,10 +23,9 @@ return [
 
     'sort' => [
         'recent'       => 'Mais Recentes',
-        'recent_short' => 'Recentes',
-        'hot'          => '🔥 Em Alta',
-        'top_rated'    => '⭐ Mais Votadas',
-        'mine'         => 'Minhas Ideias',
+        'hot'          => 'Em Alta',
+        'top_rated'    => 'Maior Nota',
+        'mine'         => 'Minhas Ideias',        
     ],
 
     'toasts' => [

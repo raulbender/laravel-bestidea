@@ -23,10 +23,9 @@ return [
 
     'sort' => [
         'recent'       => 'Most Recent',
-        'recent_short' => 'Recent',
-        'hot'          => '🔥 Trending',
-        'top_rated'    => '⭐ Top Rated',
-        'mine'         => 'My Ideas',
+        'hot'          => 'Trending',
+        'top_rated'    => 'Top Rated',
+        'mine'         => 'My Ideas',        
     ],
 
     'toasts' => [
