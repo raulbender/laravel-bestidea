@@ -45,6 +45,22 @@ return [
         'anonymous' => 'Anônimo'
     ],
 
+    'idea-card' => [        
+        'remove_rating' => 'Remover',        
+        'your_rating' => 'Sua nota',
+        'change_rating' => 'Alterar nota',
+        'select_rating' => 'Selecione sua nota',
+        'evaluate' => 'Avaliar',
+        'look' => 'Ver',
+        'comments' => 'Comentários',
+        'comment_placeholder' => 'Quer adicionar um comentário explicando sua nota? (opcional)',
+        'submit_comment' => 'Enviar comentário',
+        'submitting_comment' => 'Enviando comentário...',
+        'comment_submitted' => 'Comentário enviado!',
+        'comment_error' => 'Ocorreu um erro ao enviar o comentário.',
+        'cancel_comment' => 'Concluir sem comentar',
+    ],
+
     'home' => [
         'hero' => [
             'title' => 'Ideias anônimas. Decisões sem viés.',
