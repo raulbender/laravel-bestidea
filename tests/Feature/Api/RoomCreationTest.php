@@ -27,7 +27,7 @@ class RoomCreationTest extends TestCase {
         // 1. Arrange: Define request payload
         $payload = [
             'description' => 'Laravel Migration Room',
-            'expires_at'  => now()->addHours(24)->toDateTimeString(),
+            'expires_at'  => now()->addHours(23)->toDateTimeString(),
         ];
 
         // 2. Act: Send POST request to API
