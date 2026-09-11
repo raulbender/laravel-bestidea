@@ -14,7 +14,7 @@ class RateIdeaAction
         private AssignAuthorToRoomAction $assignAuthorAction
     ) {}
 
-    public function execute(Idea $idea, User $user, int $score, ?string $feedback = null): Rating
+    public function execute(Idea $idea, User $user, int $score): Rating
     {
         // 1. Garante vínculo do usuário com a persona na sala
         $roomUser = $this->assignAuthorAction->execute($idea->room, $user);
@@ -36,7 +36,6 @@ class RateIdeaAction
             'user_id'   => $user->id,
             'author_id' => $roomUser->author_id,
             'score'     => $score,
-            'feedback'  => $feedback,
         ]);
 
         // 4. Recalcula os agregados na tabela `ideas`

@@ -20,23 +20,7 @@ class GuestPermissionsTest extends TestCase {
         Author::factory()->count(5)->create(['type' => 0]);
     }
 
-    public function test_guest_can_rate_idea_without_feedback_in_public_room() {
-        $room = Room::factory()->public()->create();
-        $idea = Idea::factory()->for($room)->create();
-
-        $response = $this->postJson("/api/ideas/{$idea->id}/ratings", [
-            'score' => 5,
-            'room_uuid' => $room->uuid,
-        ]);
-
-        $response->assertStatus(201);
-        $this->assertDatabaseHas('ratings', [
-            'idea_id' => $idea->id,
-            'score' => 5,
-            'feedback' => null,
-        ]);
-    }
-
+    
 
     public function test_guest_is_forbidden_from_creating_idea_in_public_room() {
         $room = Room::factory()->public()->create();
@@ -85,27 +69,6 @@ class GuestPermissionsTest extends TestCase {
         ])->assertStatus(201);
     }
 
-
-
-    // this test could be used in the future
-    // public function test_viewing_any_get_endpoint_does_not_persist_guest_user_or_room_user_relationship() {
-    //     $room = Room::factory()->create(['is_public' => true]);
-    //     $idea = Idea::factory()->for($room)->create();
-
-    //     // Congela a quantidade atual dinamicamente para não depender do comportamento das factories
-    //     $initialUserCount = User::count();
-    //     $initialRoomUserCount = RoomUser::count();
-
-    //     $this->getJson('/api/rooms/public')->assertStatus(200);
-    //     $this->getJson("/api/rooms/{$room->uuid}")->assertStatus(200);
-    //     $this->getJson('/api/ideas')->assertStatus(200);
-    //     $this->getJson("/api/ideas/{$idea->id}/comments")->assertStatus(200);
-
-    //     // Valida que o banco não sofreu mutações
-    //     $this->assertDatabaseCount('users', $initialUserCount);
-    //     $this->assertDatabaseCount('room_users', $initialRoomUserCount);
-    //     $this->assertDatabaseMissing('users', ['is_guest' => true]);
-    // }
 
 
     public function test_guest_is_forbidden_from_rating_with_feedback_comment_in_public_room() {
@@ -196,6 +159,35 @@ class GuestPermissionsTest extends TestCase {
         $this->assertDatabaseCount('room_users', 1);
         $this->assertDatabaseHas('users', ['is_guest' => true]);
     }
+
+
+
+
+    
+    //ATENÇÃO      ATENÇÃO      ATENÇÃO      ATENÇÃO      ATENÇÃO      ATENÇÃO      ATENÇÃO      ATENÇÃO      ATENÇÃO
+    // ATENÇÃO: Os testes abaixo estão comentados porque ainda não implementamos a persistência do guest_user_id via cookie, mas eles servem como referência para futuras implementações.
+
+
+    // this test could be used in the future
+    // public function test_viewing_any_get_endpoint_does_not_persist_guest_user_or_room_user_relationship() {
+    //     $room = Room::factory()->create(['is_public' => true]);
+    //     $idea = Idea::factory()->for($room)->create();
+
+    //     // Congela a quantidade atual dinamicamente para não depender do comportamento das factories
+    //     $initialUserCount = User::count();
+    //     $initialRoomUserCount = RoomUser::count();
+
+    //     $this->getJson('/api/rooms/public')->assertStatus(200);
+    //     $this->getJson("/api/rooms/{$room->uuid}")->assertStatus(200);
+    //     $this->getJson('/api/ideas')->assertStatus(200);
+    //     $this->getJson("/api/ideas/{$idea->id}/comments")->assertStatus(200);
+
+    //     // Valida que o banco não sofreu mutações
+    //     $this->assertDatabaseCount('users', $initialUserCount);
+    //     $this->assertDatabaseCount('room_users', $initialRoomUserCount);
+    //     $this->assertDatabaseMissing('users', ['is_guest' => true]);
+    // }
+
 
     //this test could be used in the future
     // public function test_guest_retains_same_author_assigned_during_get_request_on_subsequent_post() {

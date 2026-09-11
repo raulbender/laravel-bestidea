@@ -19,8 +19,7 @@ class RatingController extends Controller {
         $rating = $rateIdeaAction->execute(
             $idea,
             Auth::user(),
-            $request->validated(['score']),
-            $request->validated(['feedback']) ?? null
+            $request->validated(['score'])
         );
 
         // Recarrega a ideia atualizada para o Resource formatar

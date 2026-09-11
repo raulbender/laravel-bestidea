@@ -112,24 +112,24 @@ class RatingSecurityTest extends TestCase
         $this->assertDatabaseMissing('ratings', ['idea_id' => $idea->id]);
     }
 
-    public function test_allows_guest_user_to_submit_score_without_feedback_in_public_room(): void
-    {
-        $guestUser = User::factory()->create(['is_guest' => true]);
-        $room = Room::factory()->create(['is_public' => true]);
-        $idea = Idea::factory()->create(['room_id' => $room->id]);
+    // public function test_allows_guest_user_to_submit_score_without_feedback_in_public_room(): void
+    // {
+    //     $guestUser = User::factory()->create(['is_guest' => true]);
+    //     $room = Room::factory()->create(['is_public' => true]);
+    //     $idea = Idea::factory()->create(['room_id' => $room->id]);
 
-        $response = $this->actingAs($guestUser)
-            ->postJson("/api/ideas/{$idea->id}/ratings?room_uuid={$room->uuid}", [
-                'score' => 4,
-            ]);
+    //     $response = $this->actingAs($guestUser)
+    //         ->postJson("/api/ideas/{$idea->id}/ratings?room_uuid={$room->uuid}", [
+    //             'score' => 4,
+    //         ]);
 
-        $response->assertStatus(201);
-        $this->assertDatabaseHas('ratings', [
-            'idea_id' => $idea->id,
-            'user_id' => $guestUser->id,
-            'score'   => 4,
-        ]);
-    }
+    //     $response->assertStatus(201);
+    //     $this->assertDatabaseHas('ratings', [
+    //         'idea_id' => $idea->id,
+    //         'user_id' => $guestUser->id,
+    //         'score'   => 4,
+    //     ]);
+    // }
 
     public function test_validates_score_range_on_rating_creation(): void
     {

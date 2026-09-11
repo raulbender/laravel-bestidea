@@ -28,12 +28,11 @@ class RateIdeaActionTest extends TestCase
 
         // 2. Act
         $action = app(RateIdeaAction::class);
-        $rating = $action->execute($idea, $user, 5, 'Excelente ideia!');
+        $rating = $action->execute($idea, $user, 5);
 
         // 3. Assert
         $this->assertEquals(5, $rating->score);
-        $this->assertEquals('Excelente ideia!', $rating->feedback);
-
+        
         // Verifica se a ideia teve os dados recarregados/recalculados corretamente
         $this->assertDatabaseHas('ideas', [
             'id' => $idea->id,
