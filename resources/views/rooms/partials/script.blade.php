@@ -21,6 +21,9 @@
             ratings: [],
             newComment: '',
 
+            userScore: null,
+            selectedScore: null,
+
             // Estado da Expansão do Rating Inline (Feed)
             expandedRatingIdeaId: null,
             currentRatingId: null,
@@ -46,13 +49,20 @@
             },
 
             // --- MÉTODOS DO RATING INLINE ---
-            toggleRating(ideaId) {
-                if (this.expandedRatingIdeaId === ideaId) {
+            async toggleRating(idea) {
+                if (this.expandedRatingIdeaId === idea.id) {
                     this.closeRatingInline();
                 } else {
-                    this.expandedRatingIdeaId = ideaId;
+                    this.expandedRatingIdeaId = idea.id;
                     this.currentRatingId = null;
                     this.ratingComment = '';
+                    this.userScore = idea.my_rating || null;
+                    this.selectedScore = this.userScore;
+
+                    // Se a nota não veio no payload inicial do feed, busca sob demanda:
+                    if (this.userScore === null) {
+                        await this.fetchMyRating(idea.id);
+                    }
                 }
             },
 
@@ -63,8 +73,23 @@
                 this.isRatingSubmitting = false;
             },
 
+            async fetchMyRating(ideaId) {
+                try {
+                    const response = await fetch(`/api/ideas/${ideaId}/my-rating?room_uuid=${this.uuid}`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        this.userScore = data.score || null;
+                        this.selectedScore = this.userScore;
+                    }
+                } catch (e) {
+                    console.error(e);
+                }
+            },
+
             async rateIdeaInline(idea, score) {
                 this.isRatingSubmitting = true;
+                this.selectedScore = score;
+
                 try {
                     const response = await fetch(`/api/ideas/${idea.id}/ratings`, {
                         method: 'POST',
@@ -81,10 +106,13 @@
 
                     if (response.ok) {
                         const data = await response.json();
-                        this.currentRatingId = data.rating?.id || null;
+                        // Mantém o id da avaliação retornado para liberar o campo de comentário
+                        this.currentRatingId = data.id || data.rating?.id || true;
+                        this.userScore = score;
+                        idea.my_rating = score;
 
                         this.showToast('Nota registrada!', '⭐');
-                        this.fetchIdeas(); // Recarrega médias do feed
+                        this.fetchIdeas(); // Recarrega médias do feed sem fechar o accordion
                     }
                 } catch (error) {
                     this.showToast('Erro ao avaliar', '❌');
@@ -284,30 +312,30 @@
                 this.ratings = [];
                 this.newComment = '';
             },
-            
-            async rateIdea(ideaId, score) {
-                try {
-                    await fetch(`/api/ideas/${ideaId}/ratings`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                        },
-                        body: JSON.stringify({
-                            score: score,
-                            room_uuid: this.uuid
-                        })
-                    });
-                    this.showToast('Avaliação salva!', '⭐');
-                    if (this.activeIdea) {
-                        this.fetchRatings(ideaId);
-                    }
-                    this.fetchIdeas();
-                } catch (error) {
-                    console.error(error);
-                }
-            }
+
+            // async rateIdea(ideaId, score) {
+            //     try {
+            //         await fetch(`/api/ideas/${ideaId}/ratings`, {
+            //             method: 'POST',
+            //             headers: {
+            //                 'Content-Type': 'application/json',
+            //                 'Accept': 'application/json',
+            //                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            //             },
+            //             body: JSON.stringify({
+            //                 score: score,
+            //                 room_uuid: this.uuid
+            //             })
+            //         });
+            //         this.showToast('Avaliação salva!', '⭐');
+            //         if (this.activeIdea) {
+            //             this.fetchRatings(ideaId);
+            //         }
+            //         this.fetchIdeas();
+            //     } catch (error) {
+            //         console.error(error);
+            //     }
+            // }
         }
     }
 </script>

@@ -1,6 +1,6 @@
 <div class="bg-slate-900 border border-slate-800 hover:border-slate-700/80 rounded-2xl transition shadow-sm overflow-hidden">
     <div class="p-5 space-y-4">
-        
+
         <!-- 1 & 2. TOPO: Autor/Tempo (Esquerda) e Badge Média (Direita) -->
         <div class="flex items-center justify-between gap-3 text-xs border-b border-slate-800/60 pb-3">
             <!-- 1. Esquerda: Avatar, Nome e Tempo -->
@@ -25,49 +25,53 @@
         <!-- 4. EMBAIXO: Botões de Ação -->
         <div class="flex items-center gap-2 pt-3 border-t border-slate-800/60 text-xs">
             <!-- 4a. Botão [💬 Comentários (5)] - Abre Modal -->
-            <button 
+            <button
                 @click="openIdeaComments(idea)"
                 class="flex items-center gap-1.5 text-slate-300 bg-slate-950 border border-slate-800 hover:border-slate-700 hover:text-white px-3.5 py-2 rounded-xl transition font-medium">
                 💬<span x-text="idea.comments_count || 0"></span>
             </button>
 
-            <!-- 4b. Botão [⭐ Avaliar] - Expande Accordion Inline -->
-            <button 
-                @click.stop="toggleRating(idea.id)"
-                :class="expandedRatingIdeaId === idea.id ? 'bg-amber-500/20 text-amber-400 border-amber-500/40' : 'bg-slate-950 border-slate-800 text-slate-300 hover:border-slate-700 hover:text-white'"
-                class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border transition font-medium">
+            <!-- Botão [⭐ Avaliar] com indicador de avaliação existente -->
+            <button
+                @click.stop="toggleRating(idea)"
+                :class="{
+        'bg-amber-500/15 border-amber-500/50 text-amber-300 font-semibold': idea.my_rating,
+        'bg-slate-950 border-slate-800 text-slate-300 hover:border-slate-700 hover:text-white': !idea.my_rating && expandedRatingIdeaId !== idea.id,
+        'bg-amber-500/20 text-amber-400 border-amber-500/40': expandedRatingIdeaId === idea.id
+    }"
+                class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border transition text-xs font-medium">
                 <span class="text-amber-400">⭐</span>
-                <span>Avaliar</span>
+                <span x-text="idea.my_rating ? `Sua nota: ${idea.my_rating}` : 'Avaliar'"></span>
             </button>
         </div>
     </div>
 
-    <!-- PRIMEIRA EXPANSÃO DO CARD: Form de Avaliação Inline -->
-    <div 
-        x-show="expandedRatingIdeaId === idea.id" 
-        x-collapse 
+    <!-- EXPANSÃO DO CARD: Avaliação e Comentário Inline -->
+    <div
+        x-show="expandedRatingIdeaId === idea.id"
+        x-collapse
         x-cloak
         class="bg-slate-950/90 border-t border-slate-800/80 p-4 space-y-3">
 
         <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-slate-300">Sua avaliação:</span>
-            
-            <!-- Estrelas -->
+            <span class="text-xs font-bold text-slate-300" x-text="userScore ? 'Sua avaliação:' : 'Selecione sua nota:'"></span>
+
+            <!-- Estrelas Dinâmicas -->
             <div class="flex gap-1">
                 <template x-for="star in [1, 2, 3, 4, 5]" :key="star">
-                    <button 
-                        @click="rateIdeaInline(idea, star)" 
+                    <button
+                        @click="rateIdeaInline(idea, star)"
                         :disabled="isRatingSubmitting"
-                        class="text-xl hover:scale-125 transition-transform disabled:opacity-50">
-                        ⭐
+                        class="text-xl hover:scale-125 transition-transform disabled:opacity-50 focus:outline-none">
+                        <span x-text="star <= (selectedScore || userScore || 0) ? '⭐' : '☆'"></span>
                     </button>
                 </template>
             </div>
         </div>
 
-        <!-- Comentário opcional atrelado à nota -->
-        <template x-if="currentRatingId">
-            <div class="space-y-2 pt-2 border-t border-slate-900 animate-fadeIn">
+        <!-- SEGUNDA ETAPA: Aparece assim que o voto é registrado (currentRatingId ou selectedScore) -->
+        <template x-if="currentRatingId || selectedScore">
+            <div class="space-y-2 pt-3 border-t border-slate-800/80 animate-fadeIn">
                 <textarea
                     x-model="ratingComment"
                     rows="2"
@@ -75,13 +79,13 @@
                     class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 transition resize-none"></textarea>
 
                 <div class="flex justify-end gap-2">
-                    <button 
-                        @click="closeRatingInline()" 
+                    <button
+                        @click="closeRatingInline()"
                         class="px-3 py-1.5 text-xs text-slate-400 hover:text-white transition">
                         Concluir sem comentar
                     </button>
-                    <button 
-                        @click="submitRatingComment(idea)" 
+                    <button
+                        @click="submitRatingComment(idea)"
                         :disabled="!ratingComment.trim()"
                         class="px-4 py-1.5 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-slate-950 font-bold text-xs rounded-lg transition">
                         Enviar Comentário
