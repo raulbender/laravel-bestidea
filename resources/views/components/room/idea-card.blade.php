@@ -1,4 +1,6 @@
-<div class="bg-slate-900 border border-slate-800 hover:border-slate-700/80 rounded-2xl transition shadow-sm overflow-hidden">
+<div
+@click.outside="closeRatingInline()"
+class="bg-slate-900 border border-slate-800 hover:border-slate-700/80 rounded-2xl transition shadow-sm overflow-hidden">
     <!-- Padding responsivo: p-4 no mobile, p-5 em telas sm+ -->
     <div class="p-3 sm:p-5 space-y-4">
 
