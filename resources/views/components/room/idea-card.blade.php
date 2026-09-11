@@ -7,13 +7,13 @@
             <!-- Bloco do Autor Ajustado com Círculo e Fundo -->
             <div class="flex items-center gap-2.5 min-w-0">
                 <!-- Círculo para o Avatar do Emoji -->
-                <div class="w-7 h-7 rounded-full bg-slate-800/80 border border-slate-700/60 flex items-center justify-center shrink-0 shadow-inner">
+                <div class="w-8 h-8 rounded-full bg-slate-800/80 border border-slate-700/60 flex items-center justify-center shrink-0 shadow-inner">
                     <span class="text-xs leading-none" x-text="idea.author_avatar || '👤'"></span>
                 </div>
 
                 <!-- Nome e Tempo -->
                 <div class="flex items-center gap-2 min-w-0">
-                    <span class="font-bold text-amber-400 text-xs truncate" x-text="idea.author_name || 'Anônimo'"></span>
+                    <span class="font-bold text-amber-400 text-xs truncate" x-text="idea.author_name"></span>
                     <span class="text-slate-600">•</span>
                     <span class="text-slate-500 text-xs whitespace-nowrap" x-text="idea.created_at_human"></span>
                 </div>
@@ -35,6 +35,7 @@
             <!-- 4a. Botão [💬 Comentários (5)] - Abre Modal -->
             <button
                 @click="openIdeaComments(idea)"
+                 :aria-label="'{{ __('app.idea-card.look') }} ' + (idea.comments_count || 0) + ' {{ __('app.idea-card.comments') }}'"
                 class="flex items-center gap-1.5 text-slate-300 bg-slate-950 border border-slate-800 hover:border-slate-700 hover:text-white px-3.5 py-2 rounded-xl transition font-medium">
                 💬<span x-text="idea.comments_count || 0"></span>
             </button>
@@ -56,7 +57,7 @@
                 class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border transition text-xs">
 
                 <span class="text-amber-400">⭐</span>
-                <span x-text="idea.my_rating ? `Sua nota: ${idea.my_rating}` : 'Avaliar'"></span>
+                <span x-text="idea.my_rating ? `{{ __('app.idea-card.your_rating') }}: ${idea.my_rating}` : '{{ __('app.idea-card.evaluate') }}'"></span>
             </button>
         </div>
     </div>
@@ -70,8 +71,7 @@
 
         <div class="flex items-center justify-between">
             <!-- Texto dinâmico: Indica se está avaliando pela primeira vez ou alterando -->
-            <span class="text-xs font-bold text-slate-300"
-                x-text="idea.my_rating ? 'Alterar sua nota:' : 'Selecione sua nota:'"></span>
+            <span class="text-xs font-bold text-slate-300" x-text="idea.my_rating ? '{{ __('app.idea-card.change_rating') }}:' : '{{ __('app.idea-card.select_rating') }}:'"></span>
 
             <!-- Estrelas Dinâmicas -->
             <div class="flex gap-1">
@@ -80,13 +80,14 @@
                         @click="removeRatingInline(idea)"
                         :disabled="isRatingSubmitting"
                         class="text-[11px] text-rose-500 hover:text-rose-300 transition ml-2 space-x-5">
-                        Remover nota
+                        {{__('app.idea-card.remove_rating')}}
                     </button>
                 </template>
                 <template x-for="star in [1, 2, 3, 4, 5]" :key="star">
                     <button
                         @click="rateIdeaInline(idea, star)"
                         :disabled="isRatingSubmitting"
+                        :aria-label="'{{ __('app.idea-card.evaluate') }} ' + star"
                         class="text-xl hover:scale-125 transition-transform disabled:opacity-50 focus:outline-none">
                         <span x-text="star <= (selectedScore || userScore || 0) ? '⭐' : '☆'"></span>
                     </button>
@@ -102,20 +103,20 @@
                 <textarea
                     x-model="ratingComment"
                     rows="2"
-                    placeholder="Quer adicionar um comentário explicando sua nota? (opcional)"
+                    placeholder="{{__('app.idea-card.comment_placeholder')}}"
                     class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 transition resize-none"></textarea>
 
                 <div class="flex justify-end gap-2">
                     <button
                         @click="closeRatingInline()"
                         class="px-3 py-1.5 text-xs text-slate-400 hover:text-white transition">
-                        Concluir sem comentar
+                        {{__('app.idea-card.cancel_comment')}}
                     </button>
                     <button
                         @click="submitRatingComment(idea)"
                         :disabled="!ratingComment.trim()"
                         class="px-4 py-1.5 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-slate-950 font-bold text-xs rounded-lg transition">
-                        Enviar Comentário
+                        {{__('app.idea-card.submit_comment')}}
                     </button>
                 </div>
             </div>
