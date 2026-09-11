@@ -14,12 +14,18 @@
             sortBy: 'recent',
             filterMine: false,
             roomUrl: window.location.href,
-            
+
             activeIdea: null,
             activeTab: 'comments',
             comments: [],
             ratings: [],
             newComment: '',
+
+            // Estado da Expansão do Rating Inline (Feed)
+            expandedRatingIdeaId: null,
+            currentRatingId: null,
+            ratingComment: '',
+            isRatingSubmitting: false,
 
             toast: {
                 show: false,
@@ -37,6 +43,54 @@
                 this.toast.icon = icon;
                 this.toast.show = true;
                 setTimeout(() => this.toast.show = false, 3000);
+            },
+
+            // --- MÉTODOS DO RATING INLINE ---
+            toggleRating(ideaId) {
+                if (this.expandedRatingIdeaId === ideaId) {
+                    this.closeRatingInline();
+                } else {
+                    this.expandedRatingIdeaId = ideaId;
+                    this.currentRatingId = null;
+                    this.ratingComment = '';
+                }
+            },
+
+            closeRatingInline() {
+                this.expandedRatingIdeaId = null;
+                this.currentRatingId = null;
+                this.ratingComment = '';
+                this.isRatingSubmitting = false;
+            },
+
+            async rateIdeaInline(idea, score) {
+                this.isRatingSubmitting = true;
+                try {
+                    const response = await fetch(`/api/ideas/${idea.id}/ratings`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify({
+                            score: score,
+                            room_uuid: this.uuid
+                        })
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        this.currentRatingId = data.rating?.id || null;
+
+                        this.showToast('Nota registrada!', '⭐');
+                        this.fetchIdeas(); // Recarrega médias do feed
+                    }
+                } catch (error) {
+                    this.showToast('Erro ao avaliar', '❌');
+                } finally {
+                    this.isRatingSubmitting = false;
+                }
             },
 
             openForm() {
@@ -188,6 +242,49 @@
                 }
             },
 
+            async submitRatingComment(idea) {
+                if (!this.ratingComment.trim()) return;
+
+                try {
+                    const response = await fetch(`/api/ideas/${idea.id}/comments`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify({
+                            content: this.ratingComment,
+                            attach_rating: true, // Avisa o backend para associar ao rating
+                            room_uuid: this.uuid
+                        })
+                    });
+
+                    if (response.ok) {
+                        this.showToast('Comentário enviado!', '💬');
+                        this.closeRatingInline();
+                        this.fetchIdeas();
+                    }
+                } catch (error) {
+                    this.showToast('Erro ao enviar', '❌');
+                }
+            },
+
+            // --- MÉTODOS DO MODAL DE DISCUSSÃO ---
+            openIdeaComments(idea) {
+                this.closeRatingInline();
+                this.activeIdea = idea;
+                this.fetchComments(idea.id);
+                this.fetchRatings(idea.id);
+            },
+
+            closeIdeaComments() {
+                this.activeIdea = null;
+                this.comments = [];
+                this.ratings = [];
+                this.newComment = '';
+            },
+            
             async rateIdea(ideaId, score) {
                 try {
                     await fetch(`/api/ideas/${ideaId}/ratings`, {
