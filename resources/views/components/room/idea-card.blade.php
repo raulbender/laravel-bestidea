@@ -28,7 +28,7 @@
             <button 
                 @click="openIdeaComments(idea)"
                 class="flex items-center gap-1.5 text-slate-300 bg-slate-950 border border-slate-800 hover:border-slate-700 hover:text-white px-3.5 py-2 rounded-xl transition font-medium">
-                💬 <span>Comentários</span> (<span x-text="idea.comments_count || 0"></span>)
+                💬<span x-text="idea.comments_count || 0"></span>
             </button>
 
             <!-- 4b. Botão [⭐ Avaliar] - Expande Accordion Inline -->
