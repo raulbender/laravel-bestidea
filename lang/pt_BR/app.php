@@ -54,11 +54,11 @@ return [
         'look' => 'Ver',
         'comments' => 'Comentários',
         'comment_placeholder' => 'Quer adicionar um comentário explicando sua nota? (opcional)',
-        'submit_comment' => 'Enviar comentário',
+        'submit_comment' => 'Comentar',
         'submitting_comment' => 'Enviando comentário...',
         'comment_submitted' => 'Comentário enviado!',
         'comment_error' => 'Ocorreu um erro ao enviar o comentário.',
-        'cancel_comment' => 'Concluir sem comentar',
+        'cancel_comment' => 'Fechar',
     ],
 
     'home' => [

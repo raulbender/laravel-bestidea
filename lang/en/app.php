@@ -54,11 +54,11 @@ return [
         'look' => 'View',
         'comments' => 'Comments',
         'comment_placeholder' => 'Would you like to add a comment explaining your rating? (optional)',
-        'submit_comment' => 'Submit comment',
+        'submit_comment' => 'Comment',
         'submitting_comment' => 'Submitting comment...',
         'comment_submitted' => 'Comment submitted!',
         'comment_error' => 'An error occurred while submitting the comment.',
-        'cancel_comment' => 'Complete without commenting',
+        'cancel_comment' => 'Close',
     ],
 
     'home' => [
