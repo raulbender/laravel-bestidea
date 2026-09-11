@@ -7,23 +7,19 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class IdeaResource extends JsonResource
 {
-     /**
-      * Transform the resource into an array.
-      *
-      * @return array<string, mixed>
-      */
     public function toArray(Request $request): array
     {
         return [
-            'id'             => $this->id,
-            'title'          => $this->title,
-            'content'        => $this->content,
-            'avg_score'      => $this->avg_score,
-            'ratings_count'  => $this->ratings_count,
-            'comments_count' => $this->comments_count,
-            'author'         => $this->whenLoaded('author', fn () => new AuthorResource($this->author)),
-            'created_at'     => $this->created_at,
+            'id'               => $this->id,
+            'title'            => $this->title,
+            'content'          => $this->content,
+            'avg_score'        => (float) ($this->avg_score ?? 0),
+            'ratings_count'    => (int) ($this->ratings_count ?? 0),
+            'comments_count'   => (int) ($this->comments_count ?? 0),
+            'author_name'      => $this->author?->name ?? 'Anônimo',
+            'author_avatar'    => $this->author?->avatar ?? '👤',
+            'created_at_human' => $this->created_at?->diffForHumans() ?? '',
+            'my_rating'        => $this->when(isset($this->my_rating), $this->my_rating),
         ];
     }
-
 }
