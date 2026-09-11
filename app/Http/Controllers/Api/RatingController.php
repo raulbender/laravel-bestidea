@@ -49,4 +49,19 @@ class RatingController extends Controller {
 
         return RatingResource::collection($ratings);
     }
+
+    public function destroy(Request $request, int $ideaId, RateIdeaAction $rateIdeaAction): JsonResponse {
+        $idea = Idea::findOrFail($ideaId);
+        $roomUuid = $request->query('room_uuid') ?? $request->input('room_uuid');
+
+        if (!$roomUuid || $idea->room->uuid !== $roomUuid) {
+            return response()->json(['message' => 'Unauthorized room access.'], 403);
+        }
+
+        $rateIdeaAction->remove($idea, Auth::user());
+
+        return response()->json([
+            'message' => 'Rating removed successfully.'
+        ], 200);
+    }
 }

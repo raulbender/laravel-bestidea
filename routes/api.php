@@ -9,20 +9,20 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['ensure.guest'])->group(function () {
     Route::post('/rooms', [RoomController::class, 'store']);
-    
-    Route::get('/rooms/public', [RoomController::class, 'publicRooms']);    
+
+    Route::get('/rooms/public', [RoomController::class, 'publicRooms']);
     Route::get('/rooms/{uuid}', [RoomController::class, 'show'])->whereUuid('uuid');
-    
+
     Route::post('/guest/register', [GuestConversionController::class, 'convert']);
     Route::post('/rooms/{uuid}/ideas', [IdeaController::class, 'store'])->whereUuid('uuid');
 
     //Ratings
     Route::post('/ideas/{id}/ratings', [RatingController::class, 'store'])->whereNumber('id');
     Route::get('/ideas/{id}/ratings', [RatingController::class, 'index'])->whereNumber('id');
+    Route::delete('/ideas/{id}/ratings', [RatingController::class, 'destroy'])->whereNumber('id');
 
     //Ideas and Comments
     Route::get('/ideas', [IdeaController::class, 'index']);
     Route::post('/ideas/{id}/comments', [CommentController::class, 'store'])->whereNumber('id');
     Route::get('/ideas/{id}/comments', [CommentController::class, 'index'])->whereNumber('id');
 });
-    

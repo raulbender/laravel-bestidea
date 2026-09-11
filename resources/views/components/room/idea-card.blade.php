@@ -4,11 +4,19 @@
         <!-- 1 & 2. TOPO: Autor/Tempo (Esquerda) e Badge Média (Direita) -->
         <div class="flex items-center justify-between gap-3 text-xs border-b border-slate-800/60 pb-3">
             <!-- 1. Esquerda: Avatar, Nome e Tempo -->
-            <div class="flex items-center gap-2 min-w-0">
-                <span class="text-sm" x-text="idea.author_avatar || '👤'"></span>
-                <span class="font-bold text-amber-400 truncate" x-text="idea.author_name || 'Anônimo'"></span>
-                <span class="text-slate-600">•</span>
-                <span class="text-slate-500 whitespace-nowrap" x-text="idea.created_at_human"></span>
+            <!-- Bloco do Autor Ajustado com Círculo e Fundo -->
+            <div class="flex items-center gap-2.5 min-w-0">
+                <!-- Círculo para o Avatar do Emoji -->
+                <div class="w-7 h-7 rounded-full bg-slate-800/80 border border-slate-700/60 flex items-center justify-center shrink-0 shadow-inner">
+                    <span class="text-xs leading-none" x-text="idea.author_avatar || '👤'"></span>
+                </div>
+
+                <!-- Nome e Tempo -->
+                <div class="flex items-center gap-2 min-w-0">
+                    <span class="font-bold text-amber-400 text-xs truncate" x-text="idea.author_name || 'Anônimo'"></span>
+                    <span class="text-slate-600">•</span>
+                    <span class="text-slate-500 text-xs whitespace-nowrap" x-text="idea.created_at_human"></span>
+                </div>
             </div>
 
             <!-- 2. Direita: Badge da Nota Média e Quantidade de Avaliações [⭐2.50 (5)] -->
@@ -32,14 +40,21 @@
             </button>
 
             <!-- Botão [⭐ Avaliar] com indicador de avaliação existente -->
+            <!-- Botão [⭐ Avaliar / Sua nota: X] com destaque invertido -->
             <button
                 @click.stop="toggleRating(idea)"
                 :class="{
-        'bg-amber-500/15 border-amber-500/50 text-amber-300 font-semibold': idea.my_rating,
-        'bg-slate-950 border-slate-800 text-slate-300 hover:border-slate-700 hover:text-white': !idea.my_rating && expandedRatingIdeaId !== idea.id,
-        'bg-amber-500/20 text-amber-400 border-amber-500/40': expandedRatingIdeaId === idea.id
+        /* 1. NÃO AVALIADO (CTA Aceso): Chama a atenção do usuário para agir */
+        'bg-amber-500/10 border-amber-500/40 text-amber-300 font-semibold hover:bg-amber-500/20': !idea.my_rating && expandedRatingIdeaId !== idea.id,
+
+        /* 2. JÁ AVALIADO (Sóbrio/Discreto): Apenas confirma o estado concluído */
+        'bg-slate-950 border-slate-800 text-amber-400 font-medium hover:border-slate-700': idea.my_rating && expandedRatingIdeaId !== idea.id,
+
+        /* 3. EM EDIÇÃO (Accordion Aberto): Destaque no card ativo */
+        'bg-slate-900 border-amber-500 text-amber-300 font-semibold': expandedRatingIdeaId === idea.id
     }"
-                class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border transition text-xs font-medium">
+                class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border transition text-xs">
+
                 <span class="text-amber-400">⭐</span>
                 <span x-text="idea.my_rating ? `Sua nota: ${idea.my_rating}` : 'Avaliar'"></span>
             </button>
@@ -54,10 +69,20 @@
         class="bg-slate-950/90 border-t border-slate-800/80 p-4 space-y-3">
 
         <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-slate-300" x-text="userScore ? 'Sua avaliação:' : 'Selecione sua nota:'"></span>
+            <!-- Texto dinâmico: Indica se está avaliando pela primeira vez ou alterando -->
+            <span class="text-xs font-bold text-slate-300"
+                x-text="idea.my_rating ? 'Alterar sua nota:' : 'Selecione sua nota:'"></span>
 
             <!-- Estrelas Dinâmicas -->
             <div class="flex gap-1">
+                <template x-if="idea.my_rating">
+                    <button
+                        @click="removeRatingInline(idea)"
+                        :disabled="isRatingSubmitting"
+                        class="text-[11px] text-rose-500 hover:text-rose-300 transition ml-2 space-x-5">
+                        Remover nota
+                    </button>
+                </template>
                 <template x-for="star in [1, 2, 3, 4, 5]" :key="star">
                     <button
                         @click="rateIdeaInline(idea, star)"
@@ -67,6 +92,8 @@
                     </button>
                 </template>
             </div>
+            <!-- Botão Discreto de Remover (aparece apenas se já avaliou) -->
+
         </div>
 
         <!-- SEGUNDA ETAPA: Aparece assim que o voto é registrado (currentRatingId ou selectedScore) -->

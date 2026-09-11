@@ -87,6 +87,12 @@
             },
 
             async rateIdeaInline(idea, score) {
+                // Evita requisição desnecessária se o usuário clicar na mesma nota que já deu
+                if (this.userScore === score && !this.isRatingSubmitting) {
+                    return;
+                }
+
+                const isUpdate = !!idea.my_rating;
                 this.isRatingSubmitting = true;
                 this.selectedScore = score;
 
@@ -106,16 +112,21 @@
 
                     if (response.ok) {
                         const data = await response.json();
-                        // Mantém o id da avaliação retornado para liberar o campo de comentário
                         this.currentRatingId = data.id || data.rating?.id || true;
+
+                        // Atualiza os estados reativos
                         this.userScore = score;
                         idea.my_rating = score;
 
-                        this.showToast('Nota registrada!', '⭐');
-                        this.fetchIdeas(); // Recarrega médias do feed sem fechar o accordion
+                        // Feedback dinâmico
+                        const msg = isUpdate ? 'Nota atualizada!' : 'Nota registrada!';
+                        this.showToast(msg, '⭐');
+
+                        // Atualiza a média exibida no card do feed
+                        this.fetchIdeas();
                     }
                 } catch (error) {
-                    this.showToast('Erro ao avaliar', '❌');
+                    this.showToast('Erro ao salvar nota', '❌');
                 } finally {
                     this.isRatingSubmitting = false;
                 }
@@ -295,6 +306,34 @@
                     }
                 } catch (error) {
                     this.showToast('Erro ao enviar', '❌');
+                }
+            },
+
+            async removeRatingInline(idea) {
+                this.isRatingSubmitting = true;
+
+                try {
+                    const response = await fetch(`/api/ideas/${idea.id}/ratings?room_uuid=${this.uuid}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        }
+                    });
+
+                    if (response.ok) {
+                        this.userScore = null;
+                        this.selectedScore = null;
+                        idea.my_rating = null;
+
+                        this.showToast('Nota removida!', '🗑️');
+                        this.closeRatingInline();
+                        this.fetchIdeas();
+                    }
+                } catch (error) {
+                    this.showToast('Erro ao remover nota', '❌');
+                } finally {
+                    this.isRatingSubmitting = false;
                 }
             },
 
