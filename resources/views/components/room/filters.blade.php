@@ -32,15 +32,13 @@
             <span class="text-[10px] sm:text-xs leading-tight">{{ __('app.sort.top_rated') }}</span>
         </button>
 
-        @auth
         <!-- My Ideas -->
         <button
             @click="toggleMine()"
             :class="filterMine ? 'bg-amber-500 text-slate-950 font-bold' : 'text-slate-400 hover:text-white'"
-            class="flex-1 sm:flex-none flex flex-col sm:flex-row items-center justify-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-lg transition whitespace-nowrap border-l border-slate-800 ml-1">
+            class="flex-1 sm:flex-none flex flex-col sm:flex-row items-center justify-center gap-1 px-1 sm:px-3 py-1.5 rounded-lg transition whitespace-nowrap border-l border-slate-800">
             <span class="text-xs leading-none">💡</span>
-            <span class="text-[10px] sm:text-xs leading-tight">{{ __('app.sort.mine') }}</span>
+            <span class="text-[10px] sm:text-xs leading-tight whitespace-nowrap">{{ __('app.sort.mine') }}</span>
         </button>
-        @endauth
     </div>
 </div>
