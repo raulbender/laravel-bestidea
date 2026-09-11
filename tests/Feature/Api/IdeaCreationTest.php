@@ -30,12 +30,8 @@ class IdeaCreationTest extends TestCase {
                 'data' => [
                     'id',
                     'content',
-                    'author' => [
-                        'name',
-                        'avatar',
-                        'type',
-                    ],
-                    'created_at',
+                    'author_name',
+                    'created_at_human',
                 ],
             ]);
 
@@ -79,6 +75,6 @@ class IdeaCreationTest extends TestCase {
 
         // 3. Assert: Garante que o autor da ideia criada é o mesmo sorteado na entrada da sala
         $ideaResponse->assertStatus(201)
-            ->assertJsonPath('data.author.name', $assignedAuthorName);
+            ->assertJsonPath('data.author_name', $assignedAuthorName);
     }
 }
