@@ -60,6 +60,8 @@
     <footer class="border-t border-slate-900 bg-slate-950/80 py-6 text-center text-xs text-slate-500">
         <p>&copy; {{ date('Y') }} {{ __('app.subtitle') }}</p>
     </footer>
-
+    
+<!-- Garanta que esta linha esteja aqui, antes do </body> -->
+    @stack('scripts')
 </body>
 </html>
