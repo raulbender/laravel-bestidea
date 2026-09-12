@@ -37,7 +37,8 @@ return [
 
     'room' => [
         'loading' => 'Loading room...',
-        'placeholder' => 'Describe your idea without fear of judgment...'
+        'placeholder' => 'Describe your idea without fear of judgment...',
+        'my_persona' => 'Your persona in this room: '
     ],
 
     'idea' => [
@@ -82,6 +83,15 @@ return [
             'created_by' => 'Created by',
             'enter' => 'Enter',
         ],
+    ],
+
+    'modal-comment' => [
+        'title' => 'Add Comment',
+        'placeholder' => 'Comment here...',
+        'submit' => 'Comment',
+        'submit_mobile' => '>',
+        'submitting' => 'Submitting...',
+        'cancel' => 'Cancel',
     ],
 
     'subtitle' => 'BestIdea. Bias-free decisions powered by AI.'

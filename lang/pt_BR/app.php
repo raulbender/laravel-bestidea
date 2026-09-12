@@ -37,7 +37,8 @@ return [
 
     'room' => [
         'loading' => 'Carregando sala...',
-        'placeholder' => 'Descreva sua ideia sem preocupação com julgamentos...'
+        'placeholder' => 'Descreva sua ideia sem preocupação com julgamentos...',
+        'my_persona' => 'Sua persona nesta sala: '
     ],
 
     'idea' => [
@@ -82,6 +83,15 @@ return [
             'created_by' => 'Criado por',
             'enter' => 'Entrar',
         ],
+    ],
+
+    'modal-comment' => [
+        'title' => 'Adicionar Comentário',
+        'placeholder' => 'Comente aqui...',
+        'submit' => 'Comentar',
+        'submit_mobile' => '>',
+        'submitting' => 'Enviando...',
+        'cancel' => 'Cancelar',
     ],
 
     'subtitle' => 'BestIdea. Decisões sem viés acionadas por IA.'
