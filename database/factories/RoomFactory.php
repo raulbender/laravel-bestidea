@@ -81,15 +81,24 @@ class RoomFactory extends Factory {
             Idea::factory($count)
                 ->for($room)
                 ->recycle($users)
+                ->state(fn() => [
+                    'created_at' => now()->subMinutes(fake()->numberBetween(10, 21600)),
+                ])
                 ->create()
                 ->each(function (Idea $idea) use ($room, $users, $ensureRoomUser) {
 
                     $ensureRoomUser($room->id, $idea->user_id);
 
+                    // Helper para gerar datas coerentes (após a ideia e antes de agora)
+                $getRandomCommentDate = fn () => fake()->dateTimeBetween($idea->created_at, 'now');
+
                     // Criar comentários (1 a 5 por ideia)
                     $comments = Comment::factory(fake()->numberBetween(1, 5))
                         ->for($idea)
                         ->recycle($users)
+                        ->state(fn () => [
+                        'created_at' => $getRandomCommentDate(),
+                    ])
                         ->create();
 
                     foreach ($comments as $comment) {
@@ -103,36 +112,40 @@ class RoomFactory extends Factory {
                     $totalScore = 0;
                     $extraCommentsCount = 0;
                     foreach ($randomUsersForRatings as $user) {
-                    $rating = Rating::factory()->create([
-                        'idea_id' => $idea->id,
-                        'user_id' => $user->id,
-                    ]);
+                        $ratingDate = $getRandomCommentDate();
 
-                    // Em 50% das avaliações, gera também um comentário atrelado ao mesmo usuário
-                    if (fake()->boolean(50)) {
-                        Comment::factory()->create([
+                        $rating = Rating::factory()->create([
                             'idea_id' => $idea->id,
                             'user_id' => $user->id,
-                            'rating_id' => $rating->id,
+                            'created_at' => $ratingDate,
                         ]);
-                        $extraCommentsCount++;
+
+                        // Em 50% das avaliações, gera também um comentário atrelado ao mesmo usuário
+                        if (fake()->boolean(50)) {
+                            Comment::factory()->create([
+                                'idea_id' => $idea->id,
+                                'user_id' => $user->id,
+                                'rating_id' => $rating->id,
+                                'created_at' => $ratingDate, // Comentário da avaliação com a mesma data da nota
+                            ]);
+                            $extraCommentsCount++;
+                        }
+
+                        $totalScore += $rating->score;
+                        $ensureRoomUser($room->id, $user->id);
                     }
 
-                    $totalScore += $rating->score;
-                    $ensureRoomUser($room->id, $user->id);
-                }
+                    // Atualiza os contadores reais na model de Ideia
+                    $realRatingsCount = $randomUsersForRatings->count();
+                    $totalCommentsCount = $comments->count() + $extraCommentsCount;
 
-                // Atualiza os contadores reais na model de Ideia
-                $realRatingsCount = $randomUsersForRatings->count();
-                $totalCommentsCount = $comments->count() + $extraCommentsCount;
-
-                $idea->update([
-                    'comments_count' => $totalCommentsCount,
-                    'ratings_count'  => $realRatingsCount,
-                    'total_score'    => $totalScore,
-                    'avg_score'      => $realRatingsCount > 0 ? round($totalScore / $realRatingsCount, 2) : 0,
-                ]);
-            });
-    });
+                    $idea->update([
+                        'comments_count' => $totalCommentsCount,
+                        'ratings_count'  => $realRatingsCount,
+                        'total_score'    => $totalScore,
+                        'avg_score'      => $realRatingsCount > 0 ? round($totalScore / $realRatingsCount, 2) : 0,
+                    ]);
+                });
+        });
     }
 }
