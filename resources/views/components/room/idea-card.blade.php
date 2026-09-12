@@ -81,25 +81,27 @@
             </div>
         </div>
 
-        <!-- Troca do <template x-if> por <div x-show> para preservar o elemento no DOM -->
+        <!-- Caixa de texto de comentário da avaliação -->
         <div x-show="currentRatingId || selectedScore" class="space-y-2 pt-3 border-t border-slate-800/80 animate-fadeIn">
             <textarea
                 x-model="ratingComment"
+                :disabled="isRatingSubmitting"
                 rows="2"
                 placeholder="{{ __('app.idea-card.comment_placeholder') }}"
-                class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 transition resize-none"></textarea>
+                class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 transition resize-none disabled:opacity-50"></textarea>
 
             <div class="flex justify-end gap-2">
                 <button
                     @click="closeRatingInline()"
-                    class="px-3 py-1.5 text-xs text-slate-400 hover:text-white transition">
+                    :disabled="isRatingSubmitting"
+                    class="px-3 py-1.5 text-xs text-slate-400 hover:text-white transition disabled:opacity-50">
                     {{ __('app.idea-card.cancel_comment') }}
                 </button>
                 <button
                     @click="submitRatingComment(idea)"
-                    :disabled="!ratingComment.trim()"
+                    :disabled="!ratingComment.trim() || isRatingSubmitting"
                     class="px-4 py-1.5 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-slate-950 font-bold text-xs rounded-lg transition">
-                    {{ __('app.idea-card.submit_comment') }}
+                    <span x-text="hasExistingRatingComment ? '{{ __('app.idea-card.update_comment') ?? 'Atualizar comentário' }}' : '{{ __('app.idea-card.submit_comment') }}'"></span>
                 </button>
             </div>
         </div>

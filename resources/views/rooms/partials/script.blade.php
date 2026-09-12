@@ -29,6 +29,7 @@
             currentRatingId: null,
             ratingComment: '',
             isRatingSubmitting: false,
+            hasExistingRatingComment: false,
 
             toast: {
                 show: false,
@@ -56,13 +57,12 @@
                     this.expandedRatingIdeaId = idea.id;
                     this.currentRatingId = null;
                     this.ratingComment = '';
+                    this.hasExistingRatingComment = false;
                     this.userScore = idea.my_rating || null;
                     this.selectedScore = this.userScore;
 
-                    // Se a nota não veio no payload inicial do feed, busca sob demanda:
-                    if (this.userScore === null) {
-                        await this.fetchMyRating(idea.id);
-                    }
+                    // Busca sempre as informações da nota + comentário do usuário para esta ideia
+                    await this.fetchMyRating(idea.id);
                 }
             },
 
@@ -70,16 +70,22 @@
                 this.expandedRatingIdeaId = null;
                 this.currentRatingId = null;
                 this.ratingComment = '';
+                this.hasExistingRatingComment = false;
                 this.isRatingSubmitting = false;
             },
 
             async fetchMyRating(ideaId) {
                 try {
-                    const response = await fetch(`/api/ideas/${ideaId}/my-rating?room_uuid=${this.uuid}`);
+                    const response = await fetch(`/api/ideas/${ideaId}/myrating?room_uuid=${this.uuid}`);
                     if (response.ok) {
                         const data = await response.json();
                         this.userScore = data.score || null;
                         this.selectedScore = this.userScore;
+                        // Se houver um comentário prévio atrelado ao rating, preenche a caixa
+                        if (data.comment && data.comment.content) {
+                            this.ratingComment = data.comment.content;
+                            this.hasExistingRatingComment = true;
+                        }
                     }
                 } catch (e) {
                     console.error(e);
@@ -282,10 +288,13 @@
             },
 
             async submitRatingComment(idea) {
-                if (!this.ratingComment.trim()) return;
+                if (!this.ratingComment.trim() || this.isRatingSubmitting) return;
+
+                this.isRatingSubmitting = true;
+                const isUpdate = this.hasExistingRatingComment;
 
                 try {
-                    const response = await fetch(`/api/ideas/${idea.id}/comments`, {
+                    const response = await fetch(`/api/ideas/${idea.id}/comments?room_uuid=${this.uuid}`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -294,18 +303,27 @@
                         },
                         body: JSON.stringify({
                             content: this.ratingComment,
-                            attach_rating: true, // Avisa o backend para associar ao rating
+                            attach_rating: true,
                             room_uuid: this.uuid
                         })
                     });
 
                     if (response.ok) {
-                        this.showToast('Comentário enviado!', '💬');
+                        // Se foi uma nova criação (201), incrementa o contador localmente
+                        if (response.status === 201 && !isUpdate) {
+                            idea.comments_count = (idea.comments_count || 0) + 1;
+                        }
+
+                        const msg = isUpdate ? 'Comentário atualizado!' : 'Comentário enviado!';
+                        this.showToast(msg, '💬');
                         this.closeRatingInline();
-                        this.fetchIdeas();
+                    } else {
+                        this.showToast('Erro ao enviar comentário', '❌');
                     }
                 } catch (error) {
-                    this.showToast('Erro ao enviar', '❌');
+                    this.showToast('Erro ao enviar comentário', '❌');
+                } finally {
+                    this.isRatingSubmitting = false;
                 }
             },
 
