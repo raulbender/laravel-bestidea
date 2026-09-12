@@ -21,10 +21,12 @@ class CommentController extends Controller
         $comment = $createCommentAction->execute($idea, Auth::user(), $request->validated(['content']), $request->boolean('attach_rating'));
 
         $comment->load('author');
+
+        $statusCode = $comment->wasRecentlyCreated ? 201 : 200;
         
         return (new CommentResource($comment))
             ->response()
-            ->setStatusCode(201);
+            ->setStatusCode($statusCode);
     }
 
     public function index(GetIdeaCommentsRequest $request, int $id): AnonymousResourceCollection 

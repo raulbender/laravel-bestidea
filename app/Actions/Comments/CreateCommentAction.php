@@ -27,6 +27,21 @@ class CreateCommentAction
                 ->value('id');
         }
 
+        // Se estiver vinculado a um rating existente, verifica se o comentário daquele rating já existe
+        if ($ratingId) {
+            $existingComment = Comment::where('rating_id', $ratingId)
+                ->where('user_id', $user->id)
+                ->first();
+
+            if ($existingComment) {
+                $existingComment->update([
+                    'content' => $content,
+                ]);
+
+                return $existingComment;
+            }
+        }
+
         // Cria o comentário
         $comment = Comment::create([
             'idea_id'   => $idea->id,
