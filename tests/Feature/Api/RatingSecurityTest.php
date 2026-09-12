@@ -8,8 +8,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class RatingSecurityTest extends TestCase
-{
+class RatingSecurityTest extends TestCase {
     use RefreshDatabase;
 
     /*
@@ -18,8 +17,42 @@ class RatingSecurityTest extends TestCase
     |--------------------------------------------------------------------------
     */
 
-    public function test_prevents_submitting_rating_without_room_uuid(): void
-    {
+    public function test_prevents_fetching_my_rating_without_room_uuid(): void {
+        $user = User::factory()->create();
+        $room = Room::factory()->create(['is_public' => false]);
+        $idea = Idea::factory()->create(['room_id' => $room->id]);
+
+        $response = $this->actingAs($user)
+            ->getJson("/api/ideas/{$idea->id}/myrating");
+
+        $response->assertStatus(403);
+    }
+
+    public function test_prevents_fetching_my_rating_with_mismatched_room_uuid(): void {
+        $user = User::factory()->create();
+        $roomA = Room::factory()->create();
+        $roomB = Room::factory()->create();
+
+        $ideaInRoomA = Idea::factory()->create(['room_id' => $roomA->id]);
+
+        $response = $this->actingAs($user)
+            ->getJson("/api/ideas/{$ideaInRoomA->id}/myrating?room_uuid={$roomB->uuid}");
+
+        $response->assertStatus(403);
+    }
+
+    public function test_allows_fetching_my_rating_with_valid_room_uuid(): void {
+        $user = User::factory()->create();
+        $room = Room::factory()->create();
+        $idea = Idea::factory()->create(['room_id' => $room->id]);
+
+        $response = $this->actingAs($user)
+            ->getJson("/api/ideas/{$idea->id}/myrating?room_uuid={$room->uuid}");
+
+        $response->assertStatus(200);
+    }
+
+    public function test_prevents_submitting_rating_without_room_uuid(): void {
         $user = User::factory()->create();
         $room = Room::factory()->create(['is_public' => false]);
         $idea = Idea::factory()->create(['room_id' => $room->id]);
@@ -33,8 +66,7 @@ class RatingSecurityTest extends TestCase
         $this->assertDatabaseMissing('ratings', ['idea_id' => $idea->id]);
     }
 
-    public function test_prevents_submitting_rating_with_mismatched_room_uuid(): void
-    {
+    public function test_prevents_submitting_rating_with_mismatched_room_uuid(): void {
         $user = User::factory()->create();
         $roomA = Room::factory()->create();
         $roomB = Room::factory()->create();
@@ -51,8 +83,7 @@ class RatingSecurityTest extends TestCase
         $this->assertDatabaseMissing('ratings', ['idea_id' => $ideaInRoomA->id]);
     }
 
-    public function test_allows_submitting_rating_with_room_uuid_in_json_payload(): void
-    {
+    public function test_allows_submitting_rating_with_room_uuid_in_json_payload(): void {
         $user = User::factory()->create();
         $room = Room::factory()->create(['is_public' => false]);
         $idea = Idea::factory()->create(['room_id' => $room->id]);
@@ -71,8 +102,7 @@ class RatingSecurityTest extends TestCase
         ]);
     }
 
-    public function test_allows_submitting_rating_with_room_uuid_in_query_string(): void
-    {
+    public function test_allows_submitting_rating_with_room_uuid_in_query_string(): void {
         $user = User::factory()->create();
         $room = Room::factory()->create(['is_public' => false]);
         $idea = Idea::factory()->create(['room_id' => $room->id]);
@@ -96,8 +126,7 @@ class RatingSecurityTest extends TestCase
     |--------------------------------------------------------------------------
     */
 
-    public function test_prevents_guest_user_from_submitting_feedback_in_public_room(): void
-    {
+    public function test_prevents_guest_user_from_submitting_feedback_in_public_room(): void {
         $guestUser = User::factory()->create(['is_guest' => true]);
         $room = Room::factory()->create(['is_public' => true]);
         $idea = Idea::factory()->create(['room_id' => $room->id]);
@@ -131,8 +160,7 @@ class RatingSecurityTest extends TestCase
     //     ]);
     // }
 
-    public function test_validates_score_range_on_rating_creation(): void
-    {
+    public function test_validates_score_range_on_rating_creation(): void {
         $user = User::factory()->create();
         $room = Room::factory()->create(['is_public' => true]);
         $idea = Idea::factory()->create(['room_id' => $room->id]);
@@ -146,8 +174,7 @@ class RatingSecurityTest extends TestCase
             ->assertJsonValidationErrors(['score']);
     }
 
-    public function test_returns_404_when_rating_non_existent_idea(): void
-    {
+    public function test_returns_404_when_rating_non_existent_idea(): void {
         $user = User::factory()->create();
         $room = Room::factory()->create();
 
@@ -165,8 +192,7 @@ class RatingSecurityTest extends TestCase
     |--------------------------------------------------------------------------
     */
 
-    public function test_prevents_listing_ratings_without_room_uuid(): void
-    {
+    public function test_prevents_listing_ratings_without_room_uuid(): void {
         $room = Room::factory()->create(['is_public' => false]);
         $idea = Idea::factory()->create(['room_id' => $room->id]);
 
@@ -175,8 +201,7 @@ class RatingSecurityTest extends TestCase
         $response->assertStatus(403);
     }
 
-    public function test_prevents_listing_ratings_with_mismatched_room_uuid(): void
-    {
+    public function test_prevents_listing_ratings_with_mismatched_room_uuid(): void {
         $roomA = Room::factory()->create();
         $roomB = Room::factory()->create();
 
@@ -187,8 +212,7 @@ class RatingSecurityTest extends TestCase
         $response->assertStatus(403);
     }
 
-    public function test_allows_listing_ratings_with_valid_room_uuid(): void
-    {
+    public function test_allows_listing_ratings_with_valid_room_uuid(): void {
         $room = Room::factory()->create();
         $idea = Idea::factory()->create(['room_id' => $room->id]);
 
@@ -198,8 +222,7 @@ class RatingSecurityTest extends TestCase
             ->assertJsonStructure(['data']);
     }
 
-    public function test_returns_404_when_listing_ratings_of_non_existent_idea(): void
-    {
+    public function test_returns_404_when_listing_ratings_of_non_existent_idea(): void {
         $room = Room::factory()->create();
 
         $response = $this->getJson("/api/ideas/99999/ratings?room_uuid={$room->uuid}");
