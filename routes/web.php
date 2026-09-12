@@ -3,6 +3,9 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Api\RoomController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\IdeaController;
+use App\Http\Controllers\Api\CommentController;
+use App\Http\Controllers\Api\RatingController;
 
 
 Route::get('/dashboard', function () {
@@ -29,5 +32,23 @@ Route::get('/rooms/{uuid}', function ($uuid) {
     return view('rooms.show', ['uuid' => $uuid]);
 })->name('rooms.show');
 
+
+
+// Rotas de UI (Retornam HTML/Views)
+Route::middleware(['auth'])->group(function () {
+    Route::get('/dashboard', [RoomController::class, 'index'])->name('dashboard');
+});
+
+// Endpoints Internos de UI (Retornam JSON para o Alpine.js)
+Route::middleware(['ensure.guest'])->prefix('api')->group(function () {
+    Route::post('/rooms/{uuid}/ideas', [IdeaController::class, 'store'])->whereUuid('uuid');
+    
+    Route::get('/ideas', [IdeaController::class, 'index']);
+    Route::post('/ideas/{id}/comments', [CommentController::class, 'store'])->whereNumber('id');
+    Route::get('/ideas/{id}/comments', [CommentController::class, 'index'])->whereNumber('id');
+
+    Route::post('/ideas/{id}/ratings', [RatingController::class, 'store'])->whereNumber('id');
+    Route::get('/ideas/{id}/myrating', [RatingController::class, 'myRating'])->whereNumber('id');
+});
 
 require __DIR__.'/auth.php';
