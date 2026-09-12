@@ -37,6 +37,7 @@ class StoreCommentRequest extends FormRequest
         return [
             'content'   => ['required', 'string', 'max:1000'],
             'room_uuid' => ['nullable', 'string', 'uuid'],
+            'attach_rating' => ['nullable', 'boolean'],
         ];
     }
 }

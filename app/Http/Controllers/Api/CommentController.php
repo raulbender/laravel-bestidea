@@ -18,7 +18,7 @@ class CommentController extends Controller
     {
         $idea = Idea::findOrFail($id);
 
-        $comment = $createCommentAction->execute($idea, Auth::user(), $request->validated(['content']));
+        $comment = $createCommentAction->execute($idea, Auth::user(), $request->validated(['content']), $request->boolean('attach_rating'));
 
         $comment->load('author');
         
