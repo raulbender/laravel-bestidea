@@ -27,6 +27,7 @@ class IdeaFactory extends Factory
             'total_score'   => 0,
             'ratings_count' => 0,
             'avg_score'     => 0.00,
+            'created_at'    => now()->subMinutes(fake()->numberBetween(1, 10080)),
         ];
     }
 }
