@@ -83,6 +83,15 @@
 
         <!-- Caixa de texto de comentário da avaliação -->
         <div x-show="currentRatingId || selectedScore" class="space-y-2 pt-3 border-t border-slate-800/80 animate-fadeIn">
+            <template x-if="myPersona">
+                <div class="flex items-center gap-1.5 text-xs text-slate-400 px-1">
+                    <span>{{ __('app.room.my_persona') }}</span>
+                    <span class="font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-md flex items-center gap-1">
+                        <span x-text="myPersona.avatar"></span>
+                        <span x-text="myPersona.name"></span>
+                    </span>
+                </div>
+            </template>
             <textarea
                 x-model="ratingComment"
                 :disabled="isRatingSubmitting"
