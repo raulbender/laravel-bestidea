@@ -20,6 +20,7 @@ Route::middleware(['ensure.guest'])->group(function () {
     Route::post('/ideas/{id}/ratings', [RatingController::class, 'store'])->whereNumber('id');
     Route::get('/ideas/{id}/ratings', [RatingController::class, 'index'])->whereNumber('id');
     Route::delete('/ideas/{id}/ratings', [RatingController::class, 'destroy'])->whereNumber('id');
+    Route::get('/ideas/{id}/myrating', [RatingController::class, 'myRating'])->whereNumber('id');
 
     //Ideas and Comments
     Route::get('/ideas', [IdeaController::class, 'index']);

@@ -64,4 +64,40 @@ class RatingController extends Controller {
             'message' => 'Rating removed successfully.'
         ], 200);
     }
+
+    public function myRating(Request $request, int $id): JsonResponse {
+        $idea = Idea::findOrFail($id);
+
+        $roomUuid = $request->query('room_uuid') ?? $request->input('room_uuid');
+
+        if (!$roomUuid || $idea->room->uuid !== $roomUuid) {
+            return response()->json(['message' => 'Unauthorized room access.'], 403);
+        }
+
+        $user = Auth::user();
+
+        $rating = $idea->ratings()
+            ->where('user_id', $user->id)
+            ->first();
+
+        if (!$rating) {
+            return response()->json([
+                'score'   => null,
+                'comment' => null,
+            ]);
+        }
+
+        $comment = \App\Models\Comment::where('rating_id', $rating->id)
+            ->where('user_id', $user->id)
+            ->first();
+
+        return response()->json([
+            'id'      => $rating->id,
+            'score'   => $rating->score,
+            'comment' => $comment ? [
+                'id'      => $comment->id,
+                'content' => $comment->content,
+            ] : null,
+        ]);
+    }
 }
