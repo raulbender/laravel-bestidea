@@ -1,8 +1,15 @@
-<div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-7 shadow-xl space-y-6">
+<div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-7 shadow-xl space-y-5">
+    <!-- Bloco 1: Título, Criador e Compartilhar -->
     <div class="flex items-start justify-between gap-4">
-        <h1
-            class="text-xl sm:text-2xl md:text-3xl font-extrabold text-white leading-snug break-words"
-            x-text="roomData.description || '{{ __('app.room.loading') }}'"></h1>
+        <div class="space-y-1.5 min-w-0">
+            <h1
+                class="text-xl sm:text-2xl md:text-3xl font-extrabold text-white leading-snug break-words"
+                x-text="roomData.description || '{{ __('app.room.loading') }}'"></h1>
+
+            <div class="text-xs font-medium text-slate-400 truncate">
+                {{ __('app.ideas.created_by') }} <span class="text-amber-400 font-semibold" x-text="roomOwner || '{{ __('app.idea.anonymous') }}'"></span>
+            </div>
+        </div>
 
         <button
             @click="copyLink()"
@@ -14,46 +21,54 @@
         </button>
     </div>
 
-    <div class="flex flex-wrap items-center justify-between gap-3">
-        <div class="flex items-center gap-2 flex-wrap">
-            <template x-if="!roomData.expires_at">
-                <x-badge variant="cyan" icon="♾️">
-                    {{ __('app.ideas.no_expires') }}
-                </x-badge>
-            </template>
+    <!-- Bloco 2: Badges de Estado da Sala -->
+    <div class="flex items-center gap-2 flex-wrap pt-1">
+        <template x-if="!roomData.expires_at">
+            <x-badge variant="cyan" icon="♾️">
+                {{ __('app.ideas.no_expires') }}
+            </x-badge>
+        </template>
 
-            <template x-if="roomData.expires_at && roomData.is_expiring_soon">
-                <x-badge variant="amber" icon="⏳" :pulse="true">
-                    <span x-text="'{{ __('app.ideas.expires_in') }} ' + roomData.expires_at_human"></span>
-                </x-badge>
-            </template>
+        <template x-if="roomData.expires_at && roomData.is_expiring_soon">
+            <x-badge variant="amber" icon="⏳" :pulse="true">
+                <span x-text="'{{ __('app.ideas.expires_in') }} ' + roomData.expires_at_human"></span>
+            </x-badge>
+        </template>
 
-            <template x-if="roomData.expires_at && !roomData.is_expiring_soon">
-                <x-badge variant="slate" icon="⏳">
-                    <span x-text="'{{ __('app.ideas.expires_in') }} ' + roomData.expires_at_human"></span>
-                </x-badge>
-            </template>
+        <template x-if="roomData.expires_at && !roomData.is_expiring_soon">
+            <x-badge variant="slate" icon="⏳">
+                <span x-text="'{{ __('app.ideas.expires_in') }} ' + roomData.expires_at_human"></span>
+            </x-badge>
+        </template>
 
-            <template x-if="roomData.is_public">
-                <x-badge variant="emerald" icon="🌐">
-                    {{ __('app.privacy.public') }}
-                </x-badge>
-            </template>
+        <template x-if="roomData.is_public">
+            <x-badge variant="emerald" icon="🌐">
+                {{ __('app.privacy.public') }}
+            </x-badge>
+        </template>
 
-            <template x-if="!roomData.is_public">
-                <x-badge variant="amber" icon="🔒">
-                    {{ __('app.privacy.unlisted') }}
-                </x-badge>
-            </template>
-        </div>
-
-        <span class="text-xs font-medium text-slate-400 truncate">
-            {{ __('app.ideas.created_by') }} <span class="text-amber-400 font-semibold" x-text="roomOwner || '{{ __('app.idea.anonymous') }}'"></span>
-        </span>
+        <template x-if="!roomData.is_public">
+            <x-badge variant="amber" icon="🔒">
+                {{ __('app.privacy.unlisted') }}
+            </x-badge>
+        </template>
     </div>
 
-    <div class="pt-5 border-t border-slate-800/80">
-        <div x-show="!showForm" class="flex items-center justify-end gap-4">
+    <!-- Bloco 3: Rodapé do Card (Persona + Envio de Ideias) -->
+    <div class="pt-4 border-t border-slate-800/80 space-y-3">
+        <!-- Badge da Persona no Rodapé (Acima do aviso de anonimato) -->
+        <template x-if="myPersona">
+            <div class="flex items-center gap-1.5 text-xs text-slate-400">
+                <span> {{ __('app.room.my_persona') }} </span>
+                <span class="font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-md flex items-center gap-1">
+                    <span x-text="myPersona.avatar"></span>
+                    <span x-text="myPersona.name"></span>
+                </span>
+            </div>
+        </template>
+
+        <!-- Estado Fechado: CTA Enviar Ideia -->
+        <div x-show="!showForm" class="flex items-center justify-between gap-4">
             <div class="flex items-center gap-3 min-w-0">
                 <div class="min-w-0">
                     <h3 class="hidden sm:inline text-sm font-bold text-white truncate">{{ __('app.ideas.add_title') }}</h3>
@@ -71,18 +86,8 @@
             </button>
         </div>
 
-        <div x-show="showForm" x-cloak class="space-y-3">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                    <span class="text-xs font-bold text-slate-300">{{ __('app.idea.write_as') }}</span>
-                    <template x-if="myPersona">
-                        <span class="text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-md">
-                            <span x-text="myPersona.avatar"></span> <span x-text="myPersona.name"></span>
-                        </span>
-                    </template>
-                </div>
-            </div>
-
+        <!-- Estado Expandido: Formulário de Envio -->
+        <div x-show="showForm" x-cloak class="space-y-3 pt-1">
             <textarea
                 x-ref="ideaTextarea"
                 x-model="newIdeaContent"
@@ -90,6 +95,7 @@
                 rows="3"
                 class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3.5 text-white placeholder-slate-500 focus:ring-1 focus:ring-amber-500 focus:border-amber-500 focus:outline-none transition resize-none text-sm"
                 placeholder="{{ __('app.ideas.placeholder') }}"></textarea>
+            
             <div class="flex justify-end"><span class="text-xs text-slate-500" x-text="`${newIdeaContent.length}/1000`"></span></div>
 
             <div class="flex items-center justify-end gap-3 pt-1">
